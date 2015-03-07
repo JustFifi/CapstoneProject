@@ -1,0 +1,33 @@
+<div id="admin-links">
+  <ul>
+    <li><a href="[siteAddress]/admin/dashboard">dashboard</a></li>
+    <li><a href="[siteAddress]/admin/newsletter">newsletter</a></li>
+    <li><a href="[siteAddress]/admin/blog">blog entries</a></li>
+    <li><a href="[siteAddress]/admin/users">users</a></li>
+    <li><a href="[siteAddress]/admin/homepage">edit homepage</a></li>
+  </ul>
+</div>
+
+[pageHeader]
+
+  <script>
+    var URL = document.URL;
+    var end = URL.substr(URL.lastIndexOf('/') + 1);
+    var oth = '';
+    if (end == 'admin') {
+      end = 'dashboard';
+    }
+    else if (end == "new" || end == "add" || $.isNumeric(end)) {
+      var ind = location.pathname.split('/');
+      if ($.isNumeric(end)) {
+        var oth = ind[4] + ' ';
+      } else {
+        var oth = end + ' ';
+      }
+      end = ind[3];
+    }
+    var end = end.replace('send-', '');
+    $('#admin-links ul li a[href$="'+end+'"]').addClass('active-page');
+
+    $('h1:first').html(oth + end);
+  </script>

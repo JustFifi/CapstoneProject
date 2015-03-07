@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TwitchReviews</title>
+  <link rel="shortcut icon" href="http:[siteAddress]/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="http:[siteAddress]/favicon.ico" type="image/x-icon">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <link rel="stylesheet" href="http://yui.yahooapis.com/2.9.0/build/reset/reset-min.css">
+  <link rel="stylesheet" type="text/css" href="[siteAddress]/style/css/style1.css">
+  <link rel="stylesheet" type="text/css" href="[siteAddress]/style/css/wysihtml5/stylesheet.css">
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+  <!-- wysihtml5 parser rules -->
+  <script src="[siteAddress]/style/js/wysihtml5/advanced.js"></script>
+  <!-- Library -->
+  <script src="[siteAddress]/style/js/wysihtml5/0.3.0.js"></script>
+  <script src="[siteAddress]/style/js/functions.streamreviews.js"></script>
+  <script src="[siteAddress]/style/js/calls.streamreviews.js"></script>
+</head>
+<body>
+  <div id="wrapper">
+  	<div id="inner-wrapper">
+	    <header id="header">
+	      [header]
+	    </header>
+
+	    <div id="body-separator"></div>
+
+	    <section id="site-body" class="body">
+	      [errors]
+	      [content]
+	    </section>
+
+	    <footer id="footer">
+			<div>
+				[footer]
+			</div>
+	    </footer>
+	</div>
+  </div>
+  <script>
+    $('ul#top-page-navigation li a[href$="[currentPage]"]').addClass('active-page');
+  </script>
+</body>
+</html>

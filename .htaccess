@@ -1,0 +1,14 @@
+Options -MultiViews
+
+RewriteEngine On
+RewriteBase /twitchreviews/
+RewriteCond %{SCRIPT_FILENAME} !-f
+RewriteCond %{SCRIPT_FILENAME} !-d
+RewriteRule ^.*$ ./index.php [NC]
+
+
+<Files "model/">
+  Order allow,deny
+  Deny from all
+</Files>
+Options -Indexes
