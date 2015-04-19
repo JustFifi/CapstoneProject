@@ -1,7 +1,9 @@
 Options -MultiViews
 
 RewriteEngine On
-RewriteBase /twitchreviews/
+RewriteCond %{HTTP_USER_AGENT} libwww-perl.* 
+RewriteRule .* – [F,L]
+RewriteBase /
 RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteCond %{SCRIPT_FILENAME} !-d
 RewriteRule ^.*$ ./index.php [NC]

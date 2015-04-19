@@ -11,7 +11,7 @@ class TwitchTV {
   var $base_url = "https://api.twitch.tv/kraken/";
   var $client_id = 'fbew6kqnhp9s4gw5g2x51bpv24b3v77'; //change this value, should be your TwitchTV Application Client ID
   var $client_secret = "ff88umr906in8bv8ice8k0uail6k92e"; //change this value, should be your TwitchTV Application Client Secret 
-  var $redirect_url = 'http://justfifi.com/twitchreviews/auth/'; //change this value, should be your TwitchTV Application Redirect URL
+  var $redirect_url = 'http://twitchreviews.tv/auth/'; //change this value, should be your TwitchTV Application Redirect URL
   var $scope_array = array('user_read');
 	
 	/**
@@ -129,7 +129,7 @@ class TwitchTV {
 			if(isset($decoded->error)) {
 				return false;
 			} else {
-				return true;
+				return $decoded;
 			}
 			print_r($decoded);
 		}

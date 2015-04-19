@@ -5407,7 +5407,7 @@ wysihtml5.dom.replaceWithChildNodes = function(node) {
         "security":           "restricted",
         "allowtransparency":  "true",
         "frameborder":        0,
-        "width":              0,
+        "width":              "120%",
         "height":             0,
         "marginwidth":        0,
         "marginheight":       0

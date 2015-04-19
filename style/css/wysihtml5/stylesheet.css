@@ -238,7 +238,7 @@ section#editor, #editor form {
   min-height: 536px;
 }
 
-textarea, #post-title {
+textarea, #post-title, #review_title, #review_target {
   font-family: "Courier New", Courier, monospace;
   width: 100%;
   box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.3);
@@ -253,7 +253,7 @@ textarea, #post-title {
   margin-bottom: 20px;
 }
 
-#post-title {
+#post-title, #review_title, #review_target {
   height: auto;
 }
 
@@ -268,4 +268,9 @@ a.fork {
   display: block !important;
   position: inherit !important;
   max-height: 536px !important;
+}
+
+label {
+  display: block !important;
+  width: 100%;
 }

@@ -1,9 +1,11 @@
 <?php
+  //Prevent Direct Access
+  if (count(get_included_files()) == 1) die("Error");
 
   $html = $build->mainHTML($errorsHTML, $checkAdmin, $adminLink, $userLink, $page[0]);
 
   if ($page[1] != $null || !empty($page[1])) {
-    $safe_pages2 = array("about", "terms-of-service", "cookie-policy", "frequently-asked-questions");
+    $safe_pages2 = array("about", "cookie-policy", "frequently-asked-questions");
 
     if(in_array($page[1], $safe_pages2))
     {
@@ -14,10 +16,6 @@
           break;
         case "cookie-policy":
           $x = file_get_contents($vars->pathToPages.$vars->pageCookiePolicy);
-          $html = preg_replace('/\[content\]/', $x, $html);
-          break;
-        case "terms-of-service":
-          $x = file_get_contents($vars->pathToPages.$vars->pageTerms);
           $html = preg_replace('/\[content\]/', $x, $html);
           break;
         case "frequently-asked-questions":

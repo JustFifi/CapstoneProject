@@ -1,0 +1,23 @@
+  <div id="simpleSearchForm">
+    <input type="text" name="searchSimple" id="twitchSearchUser" placeholder="Search Reviews">
+    <input type="button" href="#" id="searchFormSimple" value="Search" class="button red">
+  </div>
+
+      <script>
+        $(function(){
+          $("#searchFormSimple").click(function(e){
+            $('.form-error').remove();
+            var terms = $(this).prev().val();
+            if (!terms) {
+              e.preventDefault;
+              $(this).after("<span class=\"form-error\">Please enter a search term</span>");
+            } else {
+                if (e.which == 13 || e.keyCode == 13) {
+                  window.location = "http://twitchreviews.tv/search/reviews/" + terms;
+                } else {
+                  window.location = "http://twitchreviews.tv/search/reviews/" + terms;
+                }
+            }
+          });
+        });
+      </script>

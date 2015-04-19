@@ -1,4 +1,7 @@
 <?php
+  //Prevent Direct Access
+  if (count(get_included_files()) == 1) die("Error");
+
   $html = $build->mainHTML($errorsHTML, $checkAdmin, $adminLink, $userLink, $page[0]);
   $body = $q->getCurrentHomepageHtml();
 
@@ -39,24 +42,22 @@
                       "name" => 'Staff');
 
           $vars->send_mail($template, $to, $message);
-          header('Location: '.$vars->siteAddress.'/contact/thank-you');
+          $_SESSION['trtv']['success'][] = $m->contactThankYou;
+          header('Location: '.$vars->siteAddress.'/home');
         }
         else {
-          $_SESSION['trtv']['error'][] = "Something went wrong. It should be fixed soon!";
+          $_SESSION['trtv']['error'][] = $m->generalError;
           header('Location: '.$vars->siteAddress.'/home');
         }
       }
       else {
+        $_SESSION['trtv']['error'][] = $m->generalError;
         header('Location: '.$vars->siteAddress.'/contact');
       }
     break;
     }
-    case "thank-you": {
-      $html = preg_replace('/\[content\]/', '<p class="success">Thank you for taking the time and contacting us.<br>Someone will get back to you within 24-48 hours.</p>', $html);
-    break;
-    }
     default: {
-      $_SESSION['trtv']['error'][] = "Something went wrong. It should be fixed soon!";
+      $_SESSION['trtv']['error'][] = $m->generalError;
       header('Location: '.$vars->siteAddress.'/home');
     break;
     }

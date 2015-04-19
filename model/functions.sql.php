@@ -8,89 +8,91 @@ class DatabaseQueries {
   public function checkForUser($twitchID)
   {
     global $db;
-    $sql = "SELECT * FROM users_usr WHERE usr_twitchID=".$twitchID;
-    $r = $db->query($sql);
+    $r = $db->prepare("SELECT * FROM users_usr WHERE usr_twitchID=:id");
+    $r->bindParam(':id', $twitchID);
+    $r->execute();
     $r = $r->fetch();
 
-    if (!$r)
-    {
-      return false;
-    }
-    else
-    {
-      return $r;
-    }
+    return $r;
   } // END PUBLIC FUNCTION checkForUser
 
   public function addUserToDatabase($name,$twitchID,$email,$logo,$timestamp,$disabled,$usrLvl)
   {
     global $db;
-    $sql = "INSERT INTO users_usr(usr_name,usr_email,usr_logo,usr_twitchID,usr_registeredDate,usr_isDisabled,usr_lvl_level) VALUES ('".$name."','".$email."','".$logo."','".$twitchID."','".$timestamp."',".$disabled.",".$usrLvl.")";
-    $db->exec($sql);
-    return true;
+    $sql = "INSERT INTO users_usr(usr_name, usr_email, usr_logo, usr_twitchID, usr_registeredDate, usr_isDisabled, usr_lvl_level) ";
+    $sql .= "VALUES (:name, :email, :logo, :twitchID, :tstamp, :disabled, :usrLvl)";
+
+    $r = $db->prepare($sql);
+    $r->bindParam(':name', $name);
+    $r->bindParam(':email', $email);
+    $r->bindParam(':logo', $logo);
+    $r->bindParam(':twitchID', $twitchID);
+    $r->bindParam(':tstamp', $timestamp);
+    $r->bindParam(':disabled', $disabled);
+    $r->bindParam(':usrLvl', $usrLvl);
+    $r->execute();
   }
 
   public function updateUserInDatabase($userID,$arrValues)
   {
     global $db;
 
-    $package = '';
-    foreach ($arrValues as $key => $val)
-    {
-      $package .= $key."='".$val."', ";
+    foreach ($arrValues as $k => $v) {
+      switch ($k) {
+        case "usr_name": {
+          $sql = $db->prepare("UPDATE users_usr SET `usr_name`=:data WHERE usr_id=:uID");
+          break;
+        }
+        case "usr_email": {
+          $sql = $db->prepare("UPDATE users_usr SET `usr_email`= :data WHERE usr_id=:uID");
+          break;
+        }
+        case "usr_logo": {
+          $sql = $db->prepare("UPDATE users_usr SET `usr_logo`= :data WHERE usr_id=:uID");
+          break;
+        }
+      }
+
+      $sql->bindParam(':data', $v);
+      $sql->bindParam(':uID', $userID);
+      $sql = $sql->execute();
     }
-
-    $sql = "UPDATE users_usr SET ".rtrim($package,", ")." WHERE usr_id=".$userID;
-
-    $db->exec($sql);
   }
 
   public function getMemberID($id)
   {
     global $db;
 
-    $sql = "SELECT usr_id FROM users_usr WHERE usr_twitchID=".$id;
-    $r = $db->query($sql);
-    $r = $r->fetch();
+    $sql = $db->prepare("SELECT usr_id FROM users_usr WHERE usr_twitchID=:id");
+    $sql->bindParam(':id', $id);
+    $sql->execute();
+    $sql = $sql->fetch();
 
-    return $r['usr_id'];
+    return $sql['usr_id'];
   }
 
   public function adminGetMembers()
   {
     global $db;
 
-    $sql = "SELECT * FROM users_usr";
-    $r = $db->query($sql);
-    $r = $r->fetchAll();
+    $sql = $db->prepare("SELECT usr_id, usr_name, usr_email, usr_logo, usr_registeredDate, usr_isDisabled, lvl_name, lvl_value FROM users_usr JOIN levels_lvl ON usr_lvl_level = lvl_id ORDER BY usr_name ASC");
+    $sql->execute();
+    // $sql = $sql->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
 
-    if (!$r)
-    {
-      return false;
-    }
-    else
-    {
-      return $r;
-    }
+    return $sql;
   }
 
   public function checkIfAdmin($id)
   {
     global $db;
 
-    $sql = "SELECT  `lvl_value` as Value ,  `usr_name` as Name FROM users_usr JOIN levels_lvl ON users_usr.usr_lvl_level = levels_lvl.lvl_id WHERE users_usr.usr_twitchID =".$id;
-    $sql = $db->query($sql);
+    $sql = $db->prepare("SELECT  `lvl_value` as Value ,  `usr_name` as Name FROM users_usr JOIN levels_lvl ON users_usr.usr_lvl_level = levels_lvl.lvl_id WHERE users_usr.usr_twitchID =:id");
+    $sql->bindParam(':id', $id);
+    $sql->execute();
 
-    $r = $sql->fetch();
+    $sql = $sql->fetch();
 
-    if (!$r)
-    {
-      return false;
-    }
-    else
-    {
-      return $r;
-    }
+    return $sql;
   }
 
   public function getAllUsersEmails()
@@ -231,6 +233,227 @@ class DatabaseQueries {
     $r = $r->fetch();
 
     return $r;
+  }
+
+  public function toggleUserAdmin($uID) {
+    global $db;
+
+    $sql = $db->prepare("SELECT usr_lvl_level as level FROM users_usr WHERE usr_id=:id");
+    $sql->bindParam(':id', $uID);
+    $sql->execute();
+
+    $result = $sql->fetch();
+
+    if ($result['level'] == 1) { $nLvl = 3; }
+    else { $nLvl = 1; }
+
+    $sql = $db->prepare("UPDATE `users_usr` SET usr_lvl_level = :nLvl WHERE usr_id=:id");
+    $sql->bindParam(':nLvl', $nLvl);
+    $sql->bindParam(':id', $uID);
+    $sql->execute();
+  }
+
+  public function toggleUserStatus($uID) {
+    global $db;
+
+    $sql = $db->prepare("SELECT usr_isDisabled as disabled FROM users_usr WHERE usr_id=:id");
+    $sql->bindParam(':id', $uID);
+    $sql->execute();
+
+    $result = $sql->fetch();
+
+    if ($result['disabled'] == 1) { $nLvl = 0; }
+    else { $nLvl = 1; }
+
+    $sql = $db->prepare("UPDATE `users_usr` SET usr_isDisabled=:nLvl WHERE usr_id=:id");
+    $sql->bindParam(':nLvl', $nLvl);
+    $sql->bindParam(':id', $uID);
+    $sql->execute();
+  }
+
+  public function checkTargetUserLevel($uID) {
+    global $db;
+
+    $sql = $db->prepare("SELECT lvl_value as Value FROM users_usr JOIN levels_lvl ON usr_lvl_level=lvl_id WHERE usr_id=:id");
+    $sql->bindParam(':id', $uID);
+    $sql->execute();
+
+    $sql = $sql->fetch();
+
+    return $sql;
+  }
+
+  public function blogsGet10($startAt, $limit) {
+    global $db;
+
+    $query = $db->prepare("SELECT new_id as ID, new_title as Title, new_body as Post, new_date as Date, usr_name as Author FROM news_new FULL JOIN users_usr ON new_usr_id=usr_id ORDER BY new_id DESC LIMIT :s,:l");
+    $query->bindParam(':s', $startAt, PDO::PARAM_INT);
+    $query->bindParam(':l', $limit, PDO::PARAM_INT);
+    $query->execute();
+
+    $query = $query->fetchAll();
+
+    return $query;
+  }
+
+  public function blogsTotalNoLimit() {
+    global $db;
+
+    $sql = $db->prepare("SELECT count(*) as Total FROM news_new");
+    $sql->execute();
+
+    $results = $sql->fetch();
+
+    return $results;
+  }
+
+  public function blogGetSingle($id) {
+    global $db;
+
+    $sql = $db->prepare("SELECT new_title as Title, new_body as Post, new_date as Date, usr_name as Author FROM news_new FULL JOIN users_usr ON new_usr_id=usr_id WHERE new_id=:id");
+    $sql->bindParam(':id', $id);
+    $sql->execute();
+
+    $result = $sql->fetch();
+
+    return $result;
+  }
+
+  public function getLastXreviews($val)
+  {
+    global $db;
+
+    $sql = $db->prepare("SELECT * FROM reviews_rev JOIN users_usr ON rev_usr_id=usr_id ORDER BY rev_date DESC LIMIT 0 , :l");
+    $sql->bindParam(':l', $val, PDO::PARAM_INT);
+    $sql->execute();
+
+    $result = $sql->fetchAll(PDO::FETCH_ASSOC);
+
+    return $result;
+  }
+
+  public function getReviewData($val)
+  {
+    global $db;
+
+    $sql = $db->prepare("SELECT * FROM reviews_rev JOIN users_usr ON rev_usr_id=usr_id WHERE rev_id=:id");
+    $sql->bindParam(':id', $val, PDO::PARAM_INT);
+    $sql->execute();
+
+    $result = $sql->fetch(PDO::FETCH_ASSOC);
+
+    return $result;
+  }
+
+  public function addNewReview($who, $title, $target, $post, $rating) {
+    global $db;
+
+    $time = time();
+
+    $sql = $db->prepare("INSERT INTO reviews_rev(rev_usr_id, rev_title, rev_body, rev_target, rev_rating, rev_date) VALUES(:who, :title, :post, :target, :rating, :time)");
+    $sql->bindParam(':who', $who, PDO::PARAM_INT);
+    $sql->bindParam(':title', $title);
+    $sql->bindParam(':post', $post);
+    $sql->bindParam(':target', $target);
+    $sql->bindParam(':rating', $rating);
+    $sql->bindParam(':time', $time);
+
+    $sql->execute();
+  }
+
+  public function deleteReview($revID) {
+    global $db;
+
+    $sql = $db->prepare("DELETE FROM reviews_rev WHERE rev_id=:id LIMIT 1");
+    $sql->bindParam(':id', $revID);
+    $sql->execute();
+  }
+
+  public function getTargetImage($tname) {
+    global $db;
+
+    $sql = $db->prepare("SELECT usr_logo FROM users_usr WHERE usr_name=:tn LIMIT 1");
+    $sql->bindParam(':tn', $tname);
+    $sql->execute();
+
+    $result = $sql->fetch();
+
+    return $result;
+  }
+
+  public function reviewNewestIDreturn($who) {
+    global $db;
+
+    $sql = $db->prepare("SELECT * FROM reviews_rev WHERE rev_usr_id=:id ORDER BY rev_date DESC LIMIT 1");
+    $sql->bindParam(':id', $who, PDO::PARAM_INT);
+    $sql->execute();
+
+    $result = $sql->fetch(PDO::FETCH_ASSOC);
+
+    return $result;
+  }
+
+  public function CheckForReviewsByTarget($who, $exclude) {
+    global $db;
+
+    $sql = $db->prepare("SELECT * FROM reviews_rev JOIN users_usr ON rev_usr_id=usr_id WHERE rev_target=:who AND rev_id!=:ex ORDER BY rev_date DESC LIMIT 10");
+    $sql->bindParam(':who', $who);
+    $sql->bindParam(':ex', $exclude);
+    $sql->execute();
+
+    $result = $sql->fetchAll(PDO::FETCH_ASSOC);
+
+    return $result;
+  }
+
+  public function CheckForReviewsByAuthor($who, $exclude) {
+    global $db;
+
+    $sql = $db->prepare("SELECT * FROM reviews_rev JOIN users_usr ON rev_usr_id=usr_id WHERE rev_usr_id=:who AND rev_id!=:ex ORDER BY rev_date DESC LIMIT 10");
+    $sql->bindParam(':who', $who, PDO::PARAM_INT);
+    $sql->bindParam(':ex', $exclude);
+    $sql->execute();
+
+    $result = $sql->fetchAll(PDO::FETCH_ASSOC);
+
+    return $result;
+  }
+
+  public function targetAverageRating($who) {
+    global $db;
+
+    $sql = $db->prepare("SELECT AVG(rev_rating) AS avg FROM reviews_rev WHERE rev_target=:who");
+    $sql->bindParam(':who', $who);
+    $sql->execute();
+
+    $result = $sql->fetch();
+
+    return $result;
+  }
+
+  public function searchReviewsFor($term) {
+    global $db;
+
+    $sql = $db->prepare("SELECT * FROM reviews_rev JOIN users_usr ON rev_usr_id=usr_id WHERE rev_target=:term");
+    $sql->bindParam(':term', $term);
+    $sql->execute();
+
+    $result = $sql->fetchAll(PDO::FETCH_ASSOC);
+
+    return $result;
+  }
+
+  public function searchLike($term) {
+    global $db;
+    $term = '%'.substr($term,1,-1).'%';
+
+    $sql = $db->prepare("SELECT * FROM  reviews_rev WHERE  rev_target LIKE :term GROUP BY rev_target");
+    $sql->bindParam(':term', $term);
+    $sql->execute();
+
+    $result = $sql->fetch();
+
+    return $result;
   }
 
 }

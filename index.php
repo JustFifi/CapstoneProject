@@ -11,12 +11,17 @@
   include('model/function.twitchtv.php');
   include_once('model/functions.sql.php');
   include('model/connect.php');
+  require("model/lessc.inc.php");
 
   $twitchtv = new TwitchTV;
   $html = new HTML;
   $vars = new Variables;
   $q = new DatabaseQueries;
   $build = new basicProtocols;
+  $m = new Messages;
+  $less = new lessc;
+
+  $less->compileFile($vars->lessInput, $vars->lessOutput);
 
   /*
   - $userInfo
@@ -41,16 +46,55 @@
   }
 
   // CHECKS FOR ERRORS WITHIN THE SESSION
-  if (isset($_SESSION['trtv']['error']) && !empty($_SESSION['trtv']['error']))
-  {
-    $errorsHTML = '<div id="errors"><ul>';
-    foreach ($_SESSION['trtv']['error'] as $e)
-    {
-      $errorsHTML .= '<li>'.$e.'</li>';
+  $errors = array();
+  $eTemplate = ( (isset($_SESSION['trtv']['error']) && !empty($_SESSION['trtv']['error'])) || (isset($_SESSION['trtv']['success']) && !empty($_SESSION['trtv']['success'])) ? '<p class="[FS]">[eMsg]</p>' : '' );
+  $eType = (isset($_SESSION['trtv']['success']) && !empty($_SESSION['trtv']['success']) ? 'success' : 'failure');
+
+  if ($eTemplate) {
+    $errors = ( isset($_SESSION['trtv']['error']) && !empty($_SESSION['trtv']['error']) ? $m->errorMessages($_SESSION['trtv']['error']) : ( isset($_SESSION['trtv']['success']) && !empty($_SESSION['trtv']['success']) ? $m->errorMessages($_SESSION['trtv']['success']) : '' ) );
+
+    if (!empty($errors) && isset($errors)) {
+      $eList = '';
+      $eWrap = preg_replace('/\[FS\]/', $eType, $eTemplate);
+      unset($_SESSION['trtv']['error'], $_SESSION['trtv']['tlogout'], $_SESSION['trtv']['success']);
+      $errorsHTML = preg_replace('/\[eMsg\]/', $errors, $eWrap);
     }
-    $errorsHTML .= '</ul></div>';
-    $_SESSION['trtv']['error'] = array();
+    else {
+      $errorsHTML = $errors;
+    }
   }
+
+
+
+
+  // if (isset($_SESSION['trtv']['error']) && !empty($_SESSION['trtv']['error']))
+  // {
+  //   $tl = (isset($_SESSION['trtv']['tlogout']) && !empty($_SESSION['trtv']['tlogout']) ? $_SESSION['trtv']['tlogout'][0] : '');
+  //   $errorsHTML = '<p class="failure">';
+  //   foreach ($_SESSION['trtv']['error'] as $e)
+  //   {
+  //     $errorsHTML .= $e;
+  //   }
+  //   $errorsHTML .= '</p>'.$tl;
+  //   $_SESSION['trtv']['error'] = array();
+  //   if ($tl != $null || !empty($tl)) { $_SESSION['trtv']['tlogout'] = ''; }
+  // }
+
+  // // CHECKS FOR SUCCESS WITHIN THE SESSION
+  // if (isset($_SESSION['trtv']['success']) && !empty($_SESSION['trtv']['success']))
+  // {
+  //   $errorsHTML = '<p class="success">';
+  //   foreach ($_SESSION['trtv']['success'] as $e)
+  //   {
+  //     $errorsHTML .= $e;
+  //   }
+  //   $errorsHTML .= '</p>';
+  //   $_SESSION['trtv']['error'] = array();
+  //   if ($tl != $null || !empty($tl)) { $_SESSION['trtv']['tlogout'] = ''; }
+  // }
+
+
+
 
   //CHECKS IF ADMIN
   if (isset($checkAdmin) && !empty($checkAdmin))
@@ -64,13 +108,14 @@
   }
 
   #remove the directory path we don't want
-  $request  = str_replace("/twitchreviews/", "", $_SERVER['REQUEST_URI']);
+  // $request  = str_replace("/twitchreviews/", "", $_SERVER['REQUEST_URI']);
+  $request = substr($_SERVER['REQUEST_URI'], 1);
 
   #split the path by '/'
   $page     = preg_split("/\//", $request);
 
   #keeps users from requesting any file they want
-  $safe_pages = array("auth", "logout", "home", "admin", "blog", "reviews", "contact", "page", "test");
+  $safe_pages = array("auth", "logout", "home", "admin", "blog", "reviews", "contact", "page", "search", "test");
 
   if(in_array($page[0], $safe_pages))
   {
@@ -82,6 +127,10 @@
   }
   else
   {
-    include("404.php");
+    $_SESSION['trtv']['error'][] = $m->notFound;
+    header('Location: '.$vars->siteAddress.'/home');
   }
+    // echo "<pre>".var_export($_SESSION['trtv'], true)."</pre>";
+    // echo "<pre>".var_export($errorType, true)."</pre>";
+    // echo "<pre>".var_export($eTemplate, true)."</pre>";
 ?>

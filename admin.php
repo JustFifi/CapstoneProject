@@ -1,5 +1,8 @@
 <?php
-	//Admin Section Code
+  //Prevent Direct Access
+  if (count(get_included_files()) == 1) die("Error");
+
+  //Admin Section Code
 	/* Debug Code	print_r($userInfo); */
 	if (!empty($checkAdmin) && isset($checkAdmin)) {
 	  if ($checkAdmin['Name'] == $userInfo['display_name'] && $checkAdmin['Value'] >= 9000)
@@ -9,7 +12,6 @@
       if (!$page[1] || $page[1] == 'dashboard') {
         $grabThis = $build->admin('dashboard');
         $html = preg_replace('/\[content\]/', $grabThis, $html);
-
         //Dashboard Elements for JQ
 
       }
@@ -75,14 +77,16 @@
                   $sendThis = htmlspecialchars($_POST['post_body']);
                   $q->addBlogPost($_POST['post_title'], $_POST['post_body'], $_SESSION['trtv']['member_id'], time());
                   $html = preg_replace('/\[content\]/', $build->admin('blog-add'), $html);
+                  $_SESSION['trtv']['adminsuccess'][] = $m->adminBlogAdd;
                 }
                 else {
-                  $html = preg_replace('/\[content\]/', $build->admin('blog-f'), $html);
+                  $_SESSION['trtv']['adminerror'][] = $m->adminBlogAddFail;
                 }
+                header('Location: '.$vars->siteAddress.'/admin/blog');
                 break;
               } //END CASE ADD/NEW
               default: {
-                header('Location: ../../home');
+                header('Location: '.$vars->siteAddress.'/admin');
                 break;
               }
             } // END SWITCH INSIDE CASE NEW/BLOG
@@ -121,18 +125,67 @@
           } // END CASE EDIT/BLOG
           case "delete": {
             $q->deleteBlogByID($page[3]);
-            $html = preg_replace('/\[content\]/', $build->admin('blog-delete'), $html);
+            $_SESSION['trtv']['adminsuccess'][] = $m->blogDeleted;
+            header('Location: '.$vars->siteAddress.'/admin/blog');
+            exit();
             break;
           } // END CASE DELETE/BLOG
           default: {
-              $_SESSION['trtv']['error'][] = "That section in the administrator area does not exist.";
-              header('Location: http://justfifi.com/twitchreviews/home');
+              $_SESSION['trtv']['adminerror'][] = $m->adminSectionDoesNotExist;
+              header('Location: '.$vars->siteAddress.'/admin');
             break;
           }
         } // END SWITCH INSIDE BLOG
       }
       elseif ($page[1] == 'users') {
-        $html = preg_replace('/\[content\]/', $build->admin('users'), $html);
+        if (isset($page[2])) { $p = $page[2]; }
+        else { $p = "dashboard"; }
+
+        switch ($p) {
+          case "dashboard": {
+            $html = preg_replace('/\[content\]/', $build->admin('users'), $html);
+            break;
+          } // END dashboard
+          case "update": {
+            if ($page[3]) {
+              if (preg_match('/(?P<type>\w+):(?P<uID>\d+):(?P<tID>\d+)/', $page[3], $m)) {
+                $check = $q->checkIfAdmin($m['tID']);
+                switch ($m['type']) {
+
+                  case "toggleadmin": {
+                    if ($check['Value'] > 9000) {
+                      $q->toggleUserAdmin($m['uID']);
+                    }
+                    header('Location: '.$vars->siteAddress.'/admin/users');
+                    break;
+                  }
+
+                  case "toggledisable": {
+                    $uCheck = $q->checkTargetUserLevel($m['uID']);
+                    if ($check['Value'] >= 9000) {
+                      if ($uCheck['Value'] >= 9000) { break; }
+                      else {
+                        $q->toggleUserStatus($m['uID']);
+                      }
+                    }
+                    $_SESSION['trtv']['successerror'][] = $m->adminSectionDoesNotExist;
+                    header('Location: '.$vars->siteAddress.'/admin/users');
+                    break;
+                  } // END toggle-disable case
+
+                  exit();
+                } // END switch
+              } // END preg_match IF
+              header('Location: '.$vars->siteAddress.'/admin/users');
+              break;
+            } // END page[3] IF
+            else {
+              $_SESSION['trtv']['adminerror'][] = $m->adminSectionDoesNotExist;
+              header('Location: '.$vars->siteAddress.'/admin/users');
+            }
+          } // END update
+        } // END page[2] switch
+
 
       }
       elseif ($page[1] == 'homepage') {
@@ -142,20 +195,39 @@
         switch ($p) {
           case "update": {
             if ($_POST['post_body'] && $q->updateHomepage($_POST['post_body'], $_SESSION['trtv']['member_id'])) {
-              $html = preg_replace('/\[content\]/', $build->admin('homepage-update-s'), $html);
+              $_SESSION['trtv']['adminsuccess'][] = $m->adminHomepageUpdate;
+              header('Location: '.$vars->siteAddress.'/admin/homepage');
+              break;
             }
             else {
-              $html = preg_replace('/\[content\]/', $build->admin('homepage-update-f'), $html);
+              $_SESSION['trtv']['adminerror'][] = $m->adminHomepageUpdateFail;
+              header('Location: '.$vars->siteAddress.'/admin/homepage');
+              break;
             }
           }
           case "dashboard": {
             $html = preg_replace('/\[content\]/', $build->admin('homepage-edit'), $html);
+            break;
+          }
+        }
+      }
+      elseif ($page[1] == 'generate-cache') {
+        $p2 = (isset($page[2]) || !empty($page[2]) ? $page[2] : 'nothing');
+
+        switch ($p2) {
+          case 'css': {
+            $less->compileFile($vars->lessInput, $vars->lessOutput);
+            break;
+          }
+          default: {
+            // Do nothing
+            break;
           }
         }
       }
       else {
-        $_SESSION['trtv']['error'][] = "That section in the administrator area does not exist.";
-        header('Location: http://justfifi.com/twitchreviews/home');
+        $_SESSION['trtv']['adminerror'][] = $m->adminSectionDoesNotExist;
+        header('Location: '.$vars->siteAddress.'/admin');
       }
 
       $html = preg_replace('/\[listBlogs\]/', '', $html);
@@ -164,16 +236,15 @@
       print($html);
 	  }
     else {
-      $_SESSION['trtv']['error'][] = "That section in the administrator area does not exist.";
-      header('Location: http://justfifi.com/twitchreviews/home');
+      $_SESSION['trtv']['adminerror'][] = $m->adminSectionDoesNotExist;
+      header('Location: '.$vars->siteAddress.'/admin');
 	  }
 	}
 	else
 	{
 		//return to home page with error
-		$_SESSION['trtv']['error'][] = "Un-Authorized Access. If this is an error please contact the site administrator.";
-    returnHome:
-		header('Location: http://justfifi.com/twitchreviews/home');
+		$_SESSION['trtv']['adminerror'][] = $m->adminUnauthorized;
+		header('Location: '.$vars->siteAddress.'/admin');
 	}
 
 

@@ -2,17 +2,21 @@
 class Variables
 {
   public $siteCreator = "Rick Anderson";
-  public $siteAddress = "//justfifi.com/twitchreviews";
-  public $noReplyEmail =  'no-reply@justfifi.com';
+  public $siteAddress = "//twitchreviews.tv";
+  public $siteName = "TwitchReviews";
+  public $noReplyEmail =  'TwitchReviews <no-reply@twitchreviews.tv>';
   public $pathToStyles = "style/";
-  public $headerTemplate = "header.tpl.html";
-  public $footerTemplate = "footer.tpl.html";
-  public $homepage = 'homepage.tpl.html';
+  public $headerTemplate = "siteHeader.tpl.html";
+  public $footerTemplate = "siteFooter.tpl.html";
+  public $homepage = 'siteHomepage.tpl.html';
   public $textEditor = "editor.tpl.html";
   public $siteTemplate = "site.tpl.html";
+  public $lessInput = 'style/css/LESS/input.less';
+  public $lessOutput ='style/css/style.less.css';
 
   public $adminTemplate = "adminTemplate.tpl.html";
-  public $adminDashboard = "adminDashboard.tpl.html";
+  public $adminDashboardBlog = "adminDashboardBlog.tpl.html";
+  public $adminDashboard = "adminDashboardHome.tpl.html";
   public $adminLinks = "adminLinks.tpl.html";
   public $adminViewMembers = "adminViewMembers.tpl.html";
   public $adminNewsletter = "adminNewsletter.tpl.html";
@@ -25,7 +29,18 @@ class Variables
   public $pageCookiePolicy = "cookie-policy.tpl.html";
   public $pageAboutUs = "about-us.tpl.html";
   public $pageFAQ = "faq.tpl.html";
-  public $pageTerms = "terms.tpl.html";
+
+  public $blogHomepage = "blogHome.tpl.html";
+  public $blogShort = "blogTemplate.tpl.html";
+
+  public $reviewHomepage = "reviewTemplate.tpl.html";
+  public $reviewShort = "reviewSmall.tpl.html";
+  public $reviewLong = "reviewLong.tpl.html";
+  public $reviewForm = "reviewForm.tpl.html";
+  public $reviewSimilarTarget = "reviewSimilarToTarget.tpl.html";
+  public $reviewOthersByAuthor = "reviewOthersByAuthor.tpl.html";
+
+  public $searchFormSimple = "searchSimple.tpl.html";
 
 
   public function send_mail($template, $recipient, $message) {
@@ -37,9 +52,13 @@ class Variables
       // Always set content-type when sending HTML email
       $headers = "MIME-Version: 1.0" . "\r\n";
       $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-      $headers .= 'From: <'.$this->noReplyEmail.'>' . "\r\n";
+      $headers .= 'From: '.$this->noReplyEmail.'' . "\r\n";
 
       mail($to,$message['subject'],$message['body'],$headers);
+  }
+
+  function random_lipsum($amount = 1, $what = 'paras', $start = 0) {
+    return simplexml_load_file("http://www.lipsum.com/feed/xml?amount=$amount&what=$what&start=$start")->lipsum;
   }
 }
 
@@ -57,6 +76,34 @@ class HTML
     return $var;
   }
 
+}
+
+class Messages
+{
+  public $blogAdded = 'Blog was successfully added.';
+  public $blogUpdated = 'Blog was successfully updated.';
+  public $blogDeleted = 'Blog post was successfully deleted';
+  public $blogLost = 'Something went wrong, blog was lost!';
+  public $adminSectionDoesNotExist = 'That section in the administrator area does not exist.';
+  public $adminHomepageUpdated = 'Homepage has been updated.';
+  public $adminHomepageUpdateFail = 'Homepage has NOT been updated.';
+  public $adminUnauthorized = 'Un-Authorized Access. If this is an error please contact the site administrator.';
+  public $adminBlogAdd = 'Blog was successfully added.';
+  public $adminBlogAddFail = 'Blog was not saved, something went wrong. Go back and try again.';
+  public $contactThankYou = 'Thank you for taking the time and contacting us. Someone will get back to you within 24-48 hours.';
+  public $generalError = 'Something went wrong. It should be fixed soon!';
+  public $unauthorizedAccess = 'This section is reserved to the users of TwitchReviews. Please login to this site using your Twitch account.';
+  public $notFound = 'The page you are looking for is not found on TwitchReviews. If you feel this is an error, please contact the site administrators using our <a href="./contact">contact form</a>.';
+  public $reviewAddNew = "Thank you for your review. The review submitted is located below.";
+  public $deleteReview = "Review has been removed";
+
+  public function errorMessages($arr) {
+    $tmp = '';
+    foreach ($arr as $e) {
+      $tmp .= '<span>'.$e.'</span>';
+    }
+    return $tmp;
+  }
 }
 
 class basicProtocols
@@ -89,15 +136,60 @@ class basicProtocols
     return $html;
   }
 
+  public function makeLink($text, $link, $target, $classes)
+  {
+    $tmp = '<a href="'.$link.'" target="'.$target.'" class="'.$classes.'">'.$text.'</a>';
+    return $tmp;
+  }
+
+  public function blogHome($ba, $type) {
+    $vars = new Variables;
+    $tmp = file_get_contents($vars->pathToStyles.$vars->blogShort);
+
+    $cReading = ($type == 'mini' ? '<p><a href="'.$vars->siteAddress.'/blog/'.$ba['ID'].'" title="View '.ucwords($ba['Title']).'" class="button controls blue">Continue Reading</a></p>' : '');
+    $title = ($type == 'mini' ? '<a href="'.$vars->siteAddress.'/blog/'.$ba['ID'].'" title="View '.ucwords($ba['Title']).'">'.ucwords($ba['Title']).'</a>' : ucwords($ba['Title']));
+    $post = ($type == 'mini' ? substr($ba['Post'], 0, 500).' ...' : $ba['Post']);
+
+    $tmp = preg_replace('/\[blogTitle\]/', $title, $tmp);
+    $tmp = preg_replace('/\[blogAuthor\]/', '<span class="twitch_username">'.$ba['Author']."</span>", $tmp);
+    $tmp = preg_replace('/\[blogDate\]/', date("M d, Y @ H:i:s", $ba['Date']), $tmp);
+    $tmp = preg_replace('/\[blogPost\]/', $post, $tmp);
+    $tmp = preg_replace('/\[blogID\]/', $ba['ID'], $tmp);
+    $tmp = preg_replace('/\[continueReading\]/', $cReading, $tmp);
+
+    return $tmp;
+  }
+
+  private function getErrors( $errors )
+  {
+    $msg = '';
+
+    foreach ( $errors as $e )
+    {
+      $msg .= '<span>'.$e.'</span>';
+    }
+
+    return $msg;
+  }
+
   public function admin( $page )
     {
       $vars = new Variables;
       $q = new DatabaseQueries;
+      $m = new Messages;
       $html = file_get_contents($vars->pathToStyles.$vars->adminTemplate);
       $adminLinks = file_get_contents($vars->pathToStyles.$vars->adminLinks);
 
       $html = preg_replace('/\[adminLinks\]/', $adminLinks, $html);
       $html = preg_replace( '/\[pageHeader\]/', '<h1 id="page-header">PAGEHEADER</h1>', $html );
+
+      if ( (isset($_SESSION['trtv']['adminsuccess']) && !empty($_SESSION['trtv']['adminsuccess'])) || (isset($_SESSION['trtv']['adminerror']) && !empty($_SESSION['trtv']['adminerror'])) ) {
+        $container = (isset($_SESSION['trtv']['adminsuccess']) && !empty($_SESSION['trtv']['adminsuccess']) ? '<p class="success">'.$m->errorMessages($_SESSION['trtv']['adminsuccess']).'</p>' : '<p class="failure">'.$m->errorMessages($_SESSION['trtv']['adminerror']).'</p>' );
+
+        unset($_SESSION['trtv']['adminsuccess'], $_SESSION['trtv']['adminerror']);
+      }
+
+      $html = (isset($container) && !empty($container) ? preg_replace('/\[adminErrors\]/', $container, $html) : preg_replace('/\[adminErrors\]/', '', $html));
 
       if ( $page == 'dashboard' )
         {
@@ -111,7 +203,7 @@ class basicProtocols
           $html = preg_replace('/\[adminContent\]/', $grabThis, $html);
           $html = preg_replace('/\[editor\]/', $editor, $html);
           $html = preg_replace('/\[postTitle\]/', '', $html);
-          $html = preg_replace('/\[formTarget\]/', $vars->siteAddress.'/admin/send-newsletter', $html);
+          $html = preg_replace('/\[formTarget\]/', $vars->siteAddress.'/admin/newsletter/send', $html);
         }
       elseif ( $page == 'newsletter-sent' )
         {
@@ -129,7 +221,7 @@ class basicProtocols
         }
       elseif ( $page == 'blog-dashboard' )
         {
-          $file = file_get_contents($vars->pathToStyles.$vars->adminDashboard);
+          $file = file_get_contents($vars->pathToStyles.$vars->adminDashboardBlog);
 
           $html = preg_replace('/\[adminContent\]/', $file, $html);
 
@@ -166,22 +258,6 @@ class basicProtocols
           $html = preg_replace('/\[postTitle\]/', $element['title'], $html);
           $html = preg_replace('/\[formTarget\]/', $vars->siteAddress.'/admin/blog/new/add', $html);
         }
-      elseif ( $page == 'blog-add' )
-        {
-          $html = preg_replace('/\[adminContent\]/', '<p class="success">Blog was successfully added.</p>', $html);
-        }
-      elseif ( $page == 'blog-update' )
-        {
-          $html = preg_replace('/\[adminContent\]/', '<p class="success">Blog was successfully updated.</p>', $html);
-        }
-      elseif ( $page == 'blog-delete' )
-        {
-          $html = preg_replace('/\[adminContent\]/', '<p class="success">Blog post was successfully deleted.</p>', $html);
-        }
-      elseif ( $page == 'blog-f' )
-        {
-          $html = preg_replace('/\[adminContent\]/', '<p class="failure">Something went wrong, blog was lost!</p>', $html);
-        }
       elseif ( $page == 'blog-edit' )
         {
           $editor = file_get_contents($vars->pathToStyles.$vars->textEditor);
@@ -194,7 +270,44 @@ class basicProtocols
         }
       elseif ( $page == 'users' )
         {
+          $q = new DatabaseQueries;
+          $tmp = '<div id="admin-members" class="page-content">';
+          $users = $q->adminGetMembers();
 
+          // echo '<pre>'.var_export($_SESSION['trtv'], true).'</pre>';
+
+          $aCheck = $q->checkIfAdmin($_SESSION['trtv']['twitch_id']);
+
+          foreach ($users as $u) {
+            $uID = $u['usr_id']; //
+            $name = $u['usr_name']; //
+            $email = $u['usr_email'];
+            $logo = $u['usr_logo']; //
+            $rDate = $u['usr_registeredDate']; //
+            $iDis = $u['usr_isDisabled']; //
+            $uLvl = $u['lvl_name']; //
+            $lvlV = $u['lvl_value']; //
+            $aID = ($lvlV >= 9000 ? 1 : 0);
+
+            $hAd = ($lvlV <= 9000 && $aCheck['Value'] == 9999 && $lvlV != 9999 && $iDis < 1 ? '' : ' hideElement');
+            $hDi = ($lvlV == 9999 || $lvlV == $aCheck['Value'] ? ' hideElement' : '');
+
+            $tmp .= '<div id="user-'.$uID.'" class="user disabled-'.$iDis.'">';
+            $tmp .= '<p class="admin-controls">';
+            $tmp .= '<span><a href="'.$vars->siteAddress.'/admin/users/update/toggledisable:'.$uID.':'.$_SESSION['trtv']['twitch_id'].'" class="button controls red usr-disabled-'.$iDis.$hDi.'">Enable JavaScript</a></span>';
+            $tmp .= '<span><a href="'.$vars->siteAddress.'/admin/users/update/toggleadmin:'.$uID.':'.$_SESSION['trtv']['twitch_id'].'" class="button controls usr-admin-'.$aID.$hAd.'">Enable JavaScript</a></span>';
+            $tmp .= '</p>';
+            $tmp .= '<img src="'.$logo.'" alt="User Image">';
+            $tmp .= '<p class="username">'.$name.'</p>';
+            $tmp .= '<p class="registered-date"><span>Registered On:</span> <span>'.date('M d, Y', $rDate).'</span></p>';
+            $tmp .= '<p class="user-type"><span>User Type:</span> <span class="type-of-user">'.$uLvl.'</span></p>';
+            $tmp .= '</div>';
+          }
+
+          $tmp .= '</div>';
+
+          $html = preg_replace('/\[adminContent\]/', $tmp, $html);
+          // print($tmp);
         }
       elseif ( $page == 'homepage-edit' )
         {
@@ -210,14 +323,6 @@ class basicProtocols
             $html = preg_replace('/\[postTitle\]/', '<p><span class="bold">Last Edited by:</span> '.$getCurrent['usr'].'</p>', $html);
             $html = preg_replace('/\[editPost\]/', $getCurrent['body'], $html);
             $html = preg_replace('/\[formTarget\]/', $vars->siteAddress.'/admin/homepage/update', $html);
-        }
-      elseif ( $page == 'homepage-update-s' )
-        {
-          $html = preg_replace('/\[adminContent\]/', '<p class="success">Homepage has been updated.</p>', $html);
-        }
-      elseif ( $page == 'homepage-update-f' )
-        {
-          $html = preg_replace('/\[adminContent\]/', '<p class="success">Homepage has been updated.</p>', $html);
         }
 
         $html = preg_replace( '/\[siteAddress\]/', $vars->siteAddress, $html );
@@ -239,4 +344,15 @@ class basicProtocols
 
     return $string;
   }
+
+  public function reviews( $page )
+  {
+    switch ($page) {
+      case "new-review": {
+        
+        break;
+      } // END ADD REVIEW CASE
+    }
+  }
+
 }

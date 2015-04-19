@@ -1,4 +1,7 @@
 <?php
+  //Prevent Direct Access
+  if (count(get_included_files()) == 1) die("Error");
+
   if (isset($_GET['code']) && !empty($_GET['code'])) {
 
     $code = $_GET['code'];
@@ -10,6 +13,13 @@
     $check = $q->checkForUser($arrData['_id']);
 
     if ($check) {
+
+      if ($check['usr_isDisabled'] == 1) {
+        $_SESSION['trtv']['error'][] = "Your account has been disabled. If you feel this is an error please contact us using this form.";
+        header('Location: '.$vars->siteAddress.'/contact');
+        exit();
+      }
+
       $arrSet = array();
 
       if ($arrData['display_name'] != $check['usr_name']) {
@@ -22,10 +32,6 @@
 
       if ($arrData['email'] != $check['usr_email']) {
         $arrSet['usr_email'] = $arrData['email'];
-      }
-
-      if ( !empty($arrData['email']) ) {
-        $_SESSION['trtv']['error'][] = $arrData['email'];
       }
 
 	  if (empty($arrData['logo']) || $arrData['logo'] == $null) {
@@ -65,7 +71,7 @@
       }
     }
 
-    if (!$arrData['email'] == $null || !empty($arrData['email'])) {
+    if ((!$arrData['email'] == $null || !empty($arrData['email'])) && (!isset($_SESSION['trtv']['error']) || empty($_SESSION['trtv']['error']) )) {
       $q->addUserToDatabase($arrData['display_name'],$arrData['_id'],$arrData['email'],$arrData['logo'],time(),0,1);
       $_SESSION['trtv'] = array(
                           "display_name" => $arrData['display_name'],
@@ -75,8 +81,8 @@
                           );
     }
     else {
-      $_SESSION['trtv']['error'][] = "Please validate/provide your email to Twitch";
-      $_SESSION['trtv']['error'][] = 'If you still haven’t verified your email address, go to <a href="http://www.twitch.tv/settings/profile" target="_blank">Twitch Settings/Profile</a>&nbsp;and check the email field. If you’re using an unverified email address, you’ll find a message informing you of your next steps. If not, you’re good to go!';
+      $_SESSION['trtv']['error'][] = 'If you still haven’t verified your email address, go to <a href="http://www.twitch.tv/settings/profile" target="_blank">Twitch Settings/Profile</a>&nbsp;and check the email field.';
+      // $_SESSION['trtv']['error'][] = 'If you would like to try another account please log out of Twitch.tv using this: <a href="http://twitch.tv/logout" target="_self" class="button controls blue">Twitch.tv Logout</a>';
     }
     // var_dump($_SESSION['trtv']);
 
