@@ -1,10 +1,24 @@
 <?php
+/* ----------------------------------------------
+- Author: Rick Anderson
+- Revision Date: 29/4/2015
+-
+-
+- Filename: index.php
+- Description: All the SQL related functions for the site.
+---------------------------------------------- */
+
 /*
  * TwitchReviews by JustFifi
  */
 
 class DatabaseQueries {
 
+  /*
+  - Name: checkForUser
+  - Arguments: Twitch ID from session
+  - Returned Data: Array of the user from the database
+  */
   public function checkForUser($twitchID)
   {
     global $db;
@@ -16,6 +30,11 @@ class DatabaseQueries {
     return $r;
   } // END PUBLIC FUNCTION checkForUser
 
+
+  /*
+  - Name: addUserToDatabase
+  - Arguments: Twitch name, twitch id, email address, profile picture, local timestamp, disabled (default: 0), user level (default: 1)
+  */
   public function addUserToDatabase($name,$twitchID,$email,$logo,$timestamp,$disabled,$usrLvl)
   {
     global $db;
@@ -33,6 +52,11 @@ class DatabaseQueries {
     $r->execute();
   }
 
+
+  /*
+  - Name: updateUserInDatabase
+  - arguments: user id from database, an array of changed data
+  */
   public function updateUserInDatabase($userID,$arrValues)
   {
     global $db;
@@ -73,6 +97,8 @@ class DatabaseQueries {
 
   public function adminGetMembers()
   {
+    // Grabs all members from the database
+    // Returns an array of data to be parsed in admin/users/
     global $db;
 
     $sql = $db->prepare("SELECT usr_id, usr_name, usr_email, usr_logo, usr_registeredDate, usr_isDisabled, lvl_name, lvl_value FROM users_usr JOIN levels_lvl ON usr_lvl_level = lvl_id ORDER BY usr_name ASC");
@@ -84,6 +110,7 @@ class DatabaseQueries {
 
   public function checkIfAdmin($id)
   {
+    // returns a row of information to be parsed elsewhere for security
     global $db;
 
     $sql = $db->prepare("SELECT  `lvl_value` as Value ,  `usr_name` as Name FROM users_usr JOIN levels_lvl ON users_usr.usr_lvl_level = levels_lvl.lvl_id WHERE users_usr.usr_twitchID =:id");
@@ -97,6 +124,7 @@ class DatabaseQueries {
 
   public function getAllUsersEmails()
   {
+    // used in the send_mail to send the newsletter
     global $db;
 
     $sql = "SELECT usr_email as email, usr_name as name FROM users_usr";
@@ -115,6 +143,7 @@ class DatabaseQueries {
 
   public function addNewsletter($u, $e, $t)
   {
+    // Adds the newsletter to the database to referral later
     global $db;
 
     $sql = $db->prepare("INSERT INTO newsletters_ltr(date_ltr,message_ltr,by_ltr_usr) VALUES(:t, :e, :u)");
@@ -128,6 +157,7 @@ class DatabaseQueries {
 
   public function addBlogPost($title, $post, $author, $date)
   {
+    // Adds a blog post to the database
     global $db;
 
     $sql = $db->prepare('INSERT INTO news_new(new_title,new_body,new_usr_id,new_date) VALUES(:title, :post, :author, :date)');
@@ -142,6 +172,7 @@ class DatabaseQueries {
 
   public function adminGetListOfBlogs()
   {
+    // retrieves all blogs from the database
     global $db;
 
     $sql = "SELECT new_id as ID, new_title as title, usr_name as author FROM news_new JOIN users_usr ON news_new.new_usr_id=users_usr.usr_id ORDER BY new_date DESC";
@@ -160,6 +191,7 @@ class DatabaseQueries {
 
   public function getBlogByID($id)
   {
+    // Used to display one blog post anywhere on the site
     global $db;
 
     $sql = "SELECT * FROM news_new WHERE new_id = $id";
@@ -178,6 +210,7 @@ class DatabaseQueries {
 
   public function updateBlogByID($id, $title, $post)
   {
+    // Updates the blog in the database
     global $db;
 
     $sql = "UPDATE news_new SET new_title='".$title."', new_body='".$post."'  WHERE new_id=".$id;
@@ -188,6 +221,7 @@ class DatabaseQueries {
 
   public function deleteBlogByID($id)
   {
+    // Removes the blog from the database completely
     global $db;
 
     $sql = "DELETE FROM news_new WHERE new_id=".$id;
@@ -198,6 +232,7 @@ class DatabaseQueries {
 
   public function getCurrentHomepageHtml()
   {
+    // Grabs the current version of the homepage to be displayed
     global $db;
 
     $r = $db->prepare("SELECT hp_html as body, usr_name as usr FROM homepage_hp JOIN users_usr ON hp_usr_user=usr_id ORDER BY hp_id DESC LIMIT 1");
@@ -209,6 +244,7 @@ class DatabaseQueries {
 
   public function updateHomepage($html, $user)
   {
+    // Used to add a new row into the homepage table to replace the old version of the site
     $time = time();
     global $db;
 
@@ -223,7 +259,9 @@ class DatabaseQueries {
     }
   }
 
-  public function getUserAndEmail($id) {
+  public function getUserAndEmail($id)
+  {
+    // used when a user is logged in to autocomplete the contact form with their information
     global $db;
 
     $r = $db->prepare("SELECT usr_name as name, usr_email as email FROM users_usr WHERE usr_id=:id");
@@ -235,7 +273,9 @@ class DatabaseQueries {
     return $r;
   }
 
-  public function toggleUserAdmin($uID) {
+  public function toggleUserAdmin($uID)
+  {
+    // Toggles the users moderation by an admin
     global $db;
 
     $sql = $db->prepare("SELECT usr_lvl_level as level FROM users_usr WHERE usr_id=:id");
@@ -253,7 +293,9 @@ class DatabaseQueries {
     $sql->execute();
   }
 
-  public function toggleUserStatus($uID) {
+  public function toggleUserStatus($uID)
+  {
+    // Toggles the users access to the site
     global $db;
 
     $sql = $db->prepare("SELECT usr_isDisabled as disabled FROM users_usr WHERE usr_id=:id");
@@ -271,7 +313,9 @@ class DatabaseQueries {
     $sql->execute();
   }
 
-  public function checkTargetUserLevel($uID) {
+  public function checkTargetUserLevel($uID)
+  {
+    // grabs the users level from the database for security in the site
     global $db;
 
     $sql = $db->prepare("SELECT lvl_value as Value FROM users_usr JOIN levels_lvl ON usr_lvl_level=lvl_id WHERE usr_id=:id");
@@ -283,7 +327,9 @@ class DatabaseQueries {
     return $sql;
   }
 
-  public function blogsGet10($startAt, $limit) {
+  public function blogsGet10($startAt, $limit)
+  {
+    // Grabs the 10 blog posts to be displayed at /blogs
     global $db;
 
     $query = $db->prepare("SELECT new_id as ID, new_title as Title, new_body as Post, new_date as Date, usr_name as Author FROM news_new FULL JOIN users_usr ON new_usr_id=usr_id ORDER BY new_id DESC LIMIT :s,:l");
@@ -296,7 +342,9 @@ class DatabaseQueries {
     return $query;
   }
 
-  public function blogsTotalNoLimit() {
+  public function blogsTotalNoLimit()
+  {
+    // Grabs all blogs for the administation side
     global $db;
 
     $sql = $db->prepare("SELECT count(*) as Total FROM news_new");
@@ -307,7 +355,9 @@ class DatabaseQueries {
     return $results;
   }
 
-  public function blogGetSingle($id) {
+  public function blogGetSingle($id)
+  {
+    // Grabs a single blog for viewing at /blog/:id
     global $db;
 
     $sql = $db->prepare("SELECT new_title as Title, new_body as Post, new_date as Date, usr_name as Author FROM news_new FULL JOIN users_usr ON new_usr_id=usr_id WHERE new_id=:id");
@@ -321,6 +371,8 @@ class DatabaseQueries {
 
   public function getLastXreviews($val)
   {
+    // Expandable command if it's ever required.
+    // Grabs x amount of reviews to be displayed at /reviews
     global $db;
 
     $sql = $db->prepare("SELECT * FROM reviews_rev JOIN users_usr ON rev_usr_id=usr_id ORDER BY rev_date DESC LIMIT 0 , :l");
@@ -334,6 +386,7 @@ class DatabaseQueries {
 
   public function getReviewData($val)
   {
+    // Gets the data for :id of the review to display at /reviews/view/:id
     global $db;
 
     $sql = $db->prepare("SELECT * FROM reviews_rev JOIN users_usr ON rev_usr_id=usr_id WHERE rev_id=:id");
@@ -345,7 +398,9 @@ class DatabaseQueries {
     return $result;
   }
 
-  public function addNewReview($who, $title, $target, $post, $rating) {
+  public function addNewReview($who, $title, $target, $post, $rating)
+  {
+    // Adds a review to the database
     global $db;
 
     $time = time();
@@ -361,7 +416,9 @@ class DatabaseQueries {
     $sql->execute();
   }
 
-  public function deleteReview($revID) {
+  public function deleteReview($revID)
+  {
+    // Removes a review from the database completely
     global $db;
 
     $sql = $db->prepare("DELETE FROM reviews_rev WHERE rev_id=:id LIMIT 1");
@@ -369,7 +426,10 @@ class DatabaseQueries {
     $sql->execute();
   }
 
-  public function getTargetImage($tname) {
+  public function getTargetImage($tname)
+  {
+    // Retrieves the profile picture of the review's target if they exist in the database.
+    // This is to prevent API callbacks and API ban
     global $db;
 
     $sql = $db->prepare("SELECT usr_logo FROM users_usr WHERE usr_name=:tn LIMIT 1");
@@ -381,7 +441,9 @@ class DatabaseQueries {
     return $result;
   }
 
-  public function reviewNewestIDreturn($who) {
+  public function reviewNewestIDreturn($who)
+  {
+    // Loop-back search to redirect the user to the review they just posted
     global $db;
 
     $sql = $db->prepare("SELECT * FROM reviews_rev WHERE rev_usr_id=:id ORDER BY rev_date DESC LIMIT 1");
@@ -393,7 +455,9 @@ class DatabaseQueries {
     return $result;
   }
 
-  public function CheckForReviewsByTarget($who, $exclude) {
+  public function CheckForReviewsByTarget($who, $exclude)
+  {
+    // Grabs 10 reviews related to the target
     global $db;
 
     $sql = $db->prepare("SELECT * FROM reviews_rev JOIN users_usr ON rev_usr_id=usr_id WHERE rev_target=:who AND rev_id!=:ex ORDER BY rev_date DESC LIMIT 10");
@@ -406,7 +470,9 @@ class DatabaseQueries {
     return $result;
   }
 
-  public function CheckForReviewsByAuthor($who, $exclude) {
+  public function CheckForReviewsByAuthor($who, $exclude)
+  {
+    // Grabs 10 other reviews the Author has done
     global $db;
 
     $sql = $db->prepare("SELECT * FROM reviews_rev JOIN users_usr ON rev_usr_id=usr_id WHERE rev_usr_id=:who AND rev_id!=:ex ORDER BY rev_date DESC LIMIT 10");
@@ -419,7 +485,9 @@ class DatabaseQueries {
     return $result;
   }
 
-  public function targetAverageRating($who) {
+  public function targetAverageRating($who)
+  {
+    // Averages the rating of the target
     global $db;
 
     $sql = $db->prepare("SELECT AVG(rev_rating) AS avg FROM reviews_rev WHERE rev_target=:who");
@@ -431,7 +499,9 @@ class DatabaseQueries {
     return $result;
   }
 
-  public function searchReviewsFor($term) {
+  public function searchReviewsFor($term)
+  {
+    // Search feature for exact match
     global $db;
 
     $sql = $db->prepare("SELECT * FROM reviews_rev JOIN users_usr ON rev_usr_id=usr_id WHERE rev_target=:term");
@@ -443,7 +513,9 @@ class DatabaseQueries {
     return $result;
   }
 
-  public function searchLike($term) {
+  public function searchLike($term)
+  {
+    // Search feature to try and fix the search terms to find something
     global $db;
     $term = substr($term,1,-1);
 
@@ -456,7 +528,9 @@ class DatabaseQueries {
     return $result;
   }
 
-  public function getLast7DaysUsers($value) {
+  public function getLast7DaysUsers($value)
+  {
+    // Grabs a count of Users for a specified day
     $start = strtotime("midnight", $value);
     $end = strtotime('tomorrow', $start) -1;
 
@@ -471,7 +545,9 @@ class DatabaseQueries {
     return $result;
   }
 
-  public function getLast7DaysReviews($value) {
+  public function getLast7DaysReviews($value)
+  {
+    // Grabs a count of Reviews for a specified day
     $start = strtotime("midnight", $value);
     $end = strtotime('tomorrow', $start) -1;
 

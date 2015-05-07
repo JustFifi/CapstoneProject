@@ -51,35 +51,13 @@
         $q->updateUserInDatabase($check['usr_id'],$arrSet);
       }
     } else {
-      //addUserToDatabase($name,$twitchID,$email,$logo,$timestamp,$disabled,$usrLvl)
-      /*
-        SAMPLE arrData:
-        array(11) {
-          ["display_name"]=> string(9) "Just_Fifi"
-          ["_id"]=> int(54516014)
-          ["name"]=> string(9) "just_fifi"
-          ["staff"]=> bool(false)
-          ["created_at"]=> string(20) "2014-01-06T03:49:50Z"
-          ["updated_at"]=> string(20) "2015-02-10T19:18:49Z"
-          ["logo"]=> string(99) "http://static-cdn.jtvnw.net/jtv_user_pictures/just_fifi-profile_image-0c95469b01468242-300x300.jpeg"
-          ["_links"]=> array(1) {
-            ["self"]=> string(44) "https://api.twitch.tv/kraken/users/just_fifi"
-          }
-          ["email"]=> string(22) "contactafifi@gmail.com"
-          ["partnered"]=> bool(false)
-          ["notifications"]=> array(2) {
-            ["push"]=> bool(true)
-            ["email"]=> bool(true)
-          }
-        }
-      */
-
       if (empty($arrData['logo']) || $arrData['logo'] == $null) {
         $arrData['logo'] = "http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_300x300.png";
       }
     }
 
     if ((!$arrData['email'] == $null || !empty($arrData['email'])) && (!isset($_SESSION['trtv']['error']) || empty($_SESSION['trtv']['error']) )) {
+      //addUserToDatabase($name,$twitchID,$email,$logo,$timestamp,$disabled,$usrLvl)
       $q->addUserToDatabase($arrData['display_name'],$arrData['_id'],$arrData['email'],$arrData['logo'],time(),0,1);
       $_SESSION['trtv'] = array(
                           "display_name" => $arrData['display_name'],
@@ -89,6 +67,7 @@
                           );
     }
     else {
+      // A verified email is required to use TwitchReviews.
       $_SESSION['trtv']['error'][] = 'If you still haven’t verified your email address, go to <a href="http://www.twitch.tv/settings/profile" target="_blank">Twitch Settings/Profile</a>&nbsp;and check the email field.';
       // $_SESSION['trtv']['error'][] = 'If you would like to try another account please log out of Twitch.tv using this: <a href="http://twitch.tv/logout" target="_self" class="button controls blue">Twitch.tv Logout</a>';
     }

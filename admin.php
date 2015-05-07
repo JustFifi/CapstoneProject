@@ -1,7 +1,7 @@
 <?php
 /* ----------------------------------------------
 - Author: Rick Anderson
-- Revision Date: 7/4/2015
+- Revision Date: 6/5/2015
 -
 -
 - Filename: admin.php
@@ -23,9 +23,11 @@
         //Dashboard Elements for JQ
       }
       elseif ($page[1] == 'newsletter') {
+        // Newsletter dashboard view
         $html = preg_replace('/\[content\]/', $build->admin('newsletter'), $html);
       }
       elseif ($page[1] == 'send-newsletter') {
+        // Sending newsletter to the masses
         if ($_POST['post_body']) {
           $i = 0;
           $users = $q->getAllUsersEmails();
@@ -61,25 +63,29 @@
         }
       }
       elseif ($page[1] == 'blog') {
+        // Admin Blog Controller
         if ($page[2]) { $p = $page[2]; }
         else { $p = "dashboard"; }
 
-                  // var_dump($_POST);
         switch ($p) {
           case "dashboard": {
+            // Blog dashboard for admins
             $html = preg_replace('/\[content\]/', $build->admin('blog-dashboard'), $html);
             break;
           } // END CASE DASHBOARD/BLOG
           case "new": {
+            // Add blog controller
             if ($page[3]) { $p2 = $page[3]; }
             else { $p2 = "dashboard"; }
 
             switch ($p2) {
               case "dashboard": {
+                // Dashboard for addming a new blog post
                 $html = preg_replace('/\[content\]/', $build->admin('blog-new'), $html);
                 break;
               } // END CASE DASHBOARD/NEW
               case "add": {
+                // controller to add new blog post
                 if ($_POST['post_body'] && $_POST['post_title']) {
                   $sendThis = htmlspecialchars($_POST['post_body']);
                   $q->addBlogPost($_POST['post_title'], $_POST['post_body'], $_SESSION['trtv']['member_id'], time());
@@ -100,11 +106,13 @@
               break;
           } // END CASE NEW/BLOG
           case "edit": {
+            // Controller for editing blog posts
             if ($page[4]) { $p2 = $page[4]; }
             else { $p2 = ''; }
 
             switch ($p2) {
               case "update": {
+                // Controller to update the blog post
                 if ($_POST) {
                   $q->updateBlogByID($_POST['blog_id'], $_POST['post_title'], $_POST['post_body']);
                   $html = preg_replace('/\[content\]/', $build->admin('blog-update'), $html);
@@ -115,6 +123,7 @@
                 break;
               }
               default: {
+                // Default view
                 $blog = $q->getBlogByID($page[3]);
 
                 if ($blog) {
@@ -131,6 +140,7 @@
             break;
           } // END CASE EDIT/BLOG
           case "delete": {
+            // Blog deleting controller
             $q->deleteBlogByID($page[3]);
             $_SESSION['trtv']['adminsuccess'][] = $m->blogDeleted;
             header('Location: '.$vars->siteAddress.'/admin/blog');
@@ -138,6 +148,7 @@
             break;
           } // END CASE DELETE/BLOG
           default: {
+              // If someone decides to be adventurous this prevents them from breaking anything and sends the back to the admin dashboard
               $_SESSION['trtv']['adminerror'][] = $m->adminSectionDoesNotExist;
               header('Location: '.$vars->siteAddress.'/admin');
             break;
@@ -145,21 +156,25 @@
         } // END SWITCH INSIDE BLOG
       }
       elseif ($page[1] == 'users') {
+        // Admin Users view/controller
         if (isset($page[2])) { $p = $page[2]; }
         else { $p = "dashboard"; }
 
         switch ($p) {
           case "dashboard": {
+            // Main view for all members in the admin section
             $html = preg_replace('/\[content\]/', $build->admin('users'), $html);
             break;
           } // END dashboard
           case "update": {
+            // Controller for updating a members access
             if ($page[3]) {
               if (preg_match('/(?P<type>\w+):(?P<uID>\d+):(?P<tID>\d+)/', $page[3], $m)) {
                 $check = $q->checkIfAdmin($m['tID']);
                 switch ($m['type']) {
 
                   case "toggleadmin": {
+                    // Enables or disables a Users moderation rights
                     if ($check['Value'] > 9000) {
                       $q->toggleUserAdmin($m['uID']);
                     }
@@ -168,6 +183,7 @@
                   }
 
                   case "toggledisable": {
+                    // Enables or disables a Users access to the site under that Twitch account
                     $uCheck = $q->checkTargetUserLevel($m['uID']);
                     if ($check['Value'] >= 9000) {
                       if ($uCheck['Value'] >= 9000) { break; }
@@ -196,11 +212,13 @@
 
       }
       elseif ($page[1] == 'homepage') {
+        // Admin homepage edit controller
         if ($page[2]) { $p = $page[2]; }
         else { $p = "dashboard"; }
 
         switch ($p) {
           case "update": {
+            // controller to post data to the database
             if ($_POST['post_body'] && $q->updateHomepage($_POST['post_body'], $_SESSION['trtv']['member_id'])) {
               $_SESSION['trtv']['adminsuccess'][] = $m->adminHomepageUpdate;
               header('Location: '.$vars->siteAddress.'/admin/homepage');
@@ -213,26 +231,14 @@
             }
           }
           case "dashboard": {
+            // Main view for homepage edit in the admin dashboard
             $html = preg_replace('/\[content\]/', $build->admin('homepage-edit'), $html);
             break;
           }
         }
       }
-      elseif ($page[1] == 'generate-cache') {
-        $p2 = (isset($page[2]) || !empty($page[2]) ? $page[2] : 'nothing');
-
-        switch ($p2) {
-          case 'css': {
-            $less->compileFile($vars->lessInput, $vars->lessOutput);
-            break;
-          }
-          default: {
-            // Do nothing
-            break;
-          }
-        }
-      }
       else {
+        // If no pages were found in the admin section redirect back with an error message
         $_SESSION['trtv']['adminerror'][] = $m->adminSectionDoesNotExist;
         header('Location: '.$vars->siteAddress.'/admin');
       }

@@ -56,9 +56,11 @@ class Variables
 
 
   public function send_mail($template, $recipient, $message) {
+    // Basic Sendmail protocol from PHP.
       $to = $recipient['email'];
       $name = $recipient['name'];
 
+      // Grabs correct email body request that represents which part of the site it was being used from.
       $message['body'] = preg_replace('/\[emailMessage\]/', $message['body'], $template);
 
       // Always set content-type when sending HTML email
@@ -66,14 +68,19 @@ class Variables
       $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
       $headers .= 'From: '.$this->noReplyEmail.'' . "\r\n";
 
+      // Finally sends the email to Myself or the User of TwitchReviews
       mail($to,$message['subject'],$message['body'],$headers);
   }
 
   public function random_lipsum($amount = 1, $what = 'paras', $start = 0) {
+    // Generates random lipsum to be used as placeholder text (Only used during testing)
     return simplexml_load_file("http://www.lipsum.com/feed/xml?amount=$amount&what=$what&start=$start")->lipsum;
   }
 
   public function autoCompileLess($inputFile, $outputFile) {
+    // Compiles a cached version of the CSS so it does not have to
+    // re-write the css file each time a page is loaded.
+
     // load the cache
     $cacheFile = $inputFile.".cache";
 
@@ -93,6 +100,8 @@ class Variables
   }
 
   function getLast7Days() {
+    // Creates an array of the date (Month Day) for the last 7 days
+
     $today = strtotime('today');
     $todayMinus1 = strtotime('-1 day');
     $todayMinus2 = strtotime('-2 days');
@@ -107,6 +116,8 @@ class Variables
   }
 
   function getLast7DaysData($type, $data) {
+    // Grabs the data for the dates specified to be used in the admin panel.
+
     $q = new DatabaseQueries;
     $x = array();
     if ($type == 'users') {
@@ -128,12 +139,16 @@ class HTML
 {
   public function getLoginLink( $auth )
   {
+    // Generates the login link if a user is not logged in.
+
     $var = '<a href="'.$auth.'">Login with Twitch</a>';
     return $var;
   }
 
   public function getLogoutLink( $var )
   {
+    // Generates the logout button when a session was found.
+
     $var = '<a href="[siteAddress]/logout"><img src="'.$var['logo'].'" class="logo-image" alt="User Image">'.$var['display_name'].' Logout</a>';
     return $var;
   }
@@ -160,6 +175,7 @@ class Messages
   public $deleteReview = "Review has been removed";
 
   public function errorMessages($arr) {
+    // Takes the array of error messages and formats them to site specific tags
     $tmp = '';
     foreach ($arr as $e) {
       $tmp .= '<span>'.$e.'</span>';
@@ -172,6 +188,9 @@ class basicProtocols
 {
   public function mainHTML( $errorsHTML, $checkAdmin, $adminLink, $userLink, $currentPage )
   {
+    // Default html build
+    // Build the basic look of the site using appropriate templates
+
     $vars = new Variables;
 
     $arrNoSearchPages = array('admin', 'contact');
@@ -211,6 +230,7 @@ class basicProtocols
   }
 
   public function blogHome($ba, $type) {
+    // Creates the individual blocks for each blog post located at /blog
     $vars = new Variables;
     $tmp = file_get_contents($vars->pathToStyles.$vars->blogShort);
 
@@ -230,6 +250,8 @@ class basicProtocols
 
   private function getErrors( $errors )
   {
+    // format the site errors for easy display
+
     $msg = '';
 
     foreach ( $errors as $e )
@@ -242,6 +264,9 @@ class basicProtocols
 
   public function admin( $page )
     {
+      // the admin function
+      // Builds the content on the site and controls how data passes into the database
+
       $vars = new Variables;
       $q = new DatabaseQueries;
       $m = new Messages;
@@ -305,6 +330,7 @@ class basicProtocols
         }
       elseif ( $page == 'newsletter-sent' )
         {
+          // Successful newsletter sent page.
           $grabThis = file_get_contents($vars->pathToStyles.$vars->adminNewsletter);
 
           $html = preg_replace('/\[adminContent\]/', $grabThis, $html);
@@ -312,6 +338,7 @@ class basicProtocols
         }
       elseif ( $page == 'newsletter-failed' )
         {
+          // Failed newsletter page
           $grabThis = file_get_contents($vars->pathToStyles.$vars->adminNewsletter);
 
           $html = preg_replace('/\[adminContent\]/', $grabThis, $html);
@@ -319,6 +346,7 @@ class basicProtocols
         }
       elseif ( $page == 'blog-dashboard' )
         {
+          // Admin dashboard for blogs
           $file = file_get_contents($vars->pathToStyles.$vars->adminDashboardBlog);
 
           $html = preg_replace('/\[adminContent\]/', $file, $html);
@@ -349,6 +377,7 @@ class basicProtocols
         }
       elseif ( $page == 'blog-new' )
         {
+          // Creating a new blog from the dashboard
           $editor = file_get_contents($vars->pathToStyles.$vars->textEditor);
           $element['title'] = '<input type="text" name="post_title" id="post-title" cols="60" placeholder="Enter a blog title..." required>';
 
@@ -358,6 +387,7 @@ class basicProtocols
         }
       elseif ( $page == 'blog-edit' )
         {
+          // Editing a blog from the dashboard
           $editor = file_get_contents($vars->pathToStyles.$vars->textEditor);
           $element['title'] = '<input type="text" name="post_title" id="post-title" cols="60" placeholder="Enter a blog title..." value="[blogTitle]" required>';
           $element['blogID'] = '<input type="hidden" name="blog_id" value="[blogID]">';
@@ -368,23 +398,22 @@ class basicProtocols
         }
       elseif ( $page == 'users' )
         {
+          // main area for all user displaying of information
           $q = new DatabaseQueries;
           $tmp = '<div id="admin-members" class="page-content">';
           $users = $q->adminGetMembers();
 
-          // echo '<pre>'.var_export($_SESSION['trtv'], true).'</pre>';
-
           $aCheck = $q->checkIfAdmin($_SESSION['trtv']['twitch_id']);
 
           foreach ($users as $u) {
-            $uID = $u['usr_id']; //
-            $name = $u['usr_name']; //
+            $uID = $u['usr_id'];
+            $name = $u['usr_name'];
             $email = $u['usr_email'];
-            $logo = $u['usr_logo']; //
-            $rDate = $u['usr_registeredDate']; //
-            $iDis = $u['usr_isDisabled']; //
-            $uLvl = $u['lvl_name']; //
-            $lvlV = $u['lvl_value']; //
+            $logo = $u['usr_logo'];
+            $rDate = $u['usr_registeredDate'];
+            $iDis = $u['usr_isDisabled'];
+            $uLvl = $u['lvl_name'];
+            $lvlV = $u['lvl_value'];
             $aID = ($lvlV >= 9000 ? 1 : 0);
 
             $hAd = ($lvlV <= 9000 && $aCheck['Value'] == 9999 && $lvlV != 9999 && $iDis < 1 ? '' : ' hideElement');
@@ -409,6 +438,8 @@ class basicProtocols
         }
       elseif ( $page == 'homepage-edit' )
         {
+          // The dashboard to edit the landing page of the site.
+
           $editor = file_get_contents($vars->pathToStyles.$vars->textEditor);
           $getCurrent = $q->getCurrentHomepageHtml();
 
@@ -428,6 +459,8 @@ class basicProtocols
     }
 
   public function rip_tags($string) {
+    // Backup protection if htmlspecialchars function does not work properly when entering data into the database.
+    // Used when displaying database content on the reviews page.
 
     // ----- remove HTML TAGs -----
     $string = preg_replace ('/<[^>]*>/', ' ', $string);
