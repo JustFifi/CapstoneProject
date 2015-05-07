@@ -445,13 +445,43 @@ class DatabaseQueries {
 
   public function searchLike($term) {
     global $db;
-    $term = '%'.substr($term,1,-1).'%';
+    $term = substr($term,1,-1);
 
-    $sql = $db->prepare("SELECT * FROM  reviews_rev WHERE  rev_target LIKE :term GROUP BY rev_target");
-    $sql->bindParam(':term', $term);
+    $sql = $db->prepare("SELECT rev_target FROM  reviews_rev WHERE rev_target LIKE :term GROUP BY rev_target");
+    $sql->bindValue(':term', '%'.$term.'%');
     $sql->execute();
 
-    $result = $sql->fetch();
+    $result = $sql->fetchAll(PDO::FETCH_ASSOC);
+
+    return $result;
+  }
+
+  public function getLast7DaysUsers($value) {
+    $start = strtotime("midnight", $value);
+    $end = strtotime('tomorrow', $start) -1;
+
+    global $db;
+    $sql = $db->prepare("SELECT count(usr_registeredDate) as value FROM users_usr WHERE usr_registeredDate >= :start AND usr_registeredDate <= :end");
+    $sql->bindValue(':start', $start);
+    $sql->bindValue(':end', $end);
+    $sql->execute();
+
+    $result = $sql->fetch(PDO::FETCH_ASSOC);
+
+    return $result;
+  }
+
+  public function getLast7DaysReviews($value) {
+    $start = strtotime("midnight", $value);
+    $end = strtotime('tomorrow', $start) -1;
+
+    global $db;
+    $sql = $db->prepare("SELECT count(rev_date) as value FROM reviews_rev WHERE rev_date >= :start AND rev_date <= :end");
+    $sql->bindValue(':start', $start);
+    $sql->bindValue(':end', $end);
+    $sql->execute();
+
+    $result = $sql->fetch(PDO::FETCH_ASSOC);
 
     return $result;
   }

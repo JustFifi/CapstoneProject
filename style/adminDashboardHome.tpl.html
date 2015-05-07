@@ -1,0 +1,47 @@
+<section id="registeredUsers">
+  <h2>Registered Users</h2>
+  <p>The amount of users that have logged in for the first time for the last 7 days.</p>
+  <canvas></canvas>
+</section>
+
+<section id="registeredReviews">
+  <h2>Review Count</h2>
+  <p>The amount of reviews that have been created for the last 7 days</p>
+  <canvas></canvas>
+</section>
+<script>
+
+  var data1 = {
+      labels: [[DATALABELS]],
+      datasets: [
+          {
+              label: "My First dataset",
+              fillColor: "rgba(151,187,205,0.5)",
+              strokeColor: "rgba(151,187,205,0.8)",
+              highlightFill: "rgba(151,187,205,0.75)",
+              highlightStroke: "rgba(151,187,205,1)",
+              data: [[DATAVALUESUSERS]]
+          }
+      ]
+  };
+  var data2 = {
+      labels: [[DATALABELS]],
+      datasets: [
+          {
+              label: "My First dataset",
+              fillColor: "rgba(151,187,205,0.5)",
+              strokeColor: "rgba(151,187,205,0.8)",
+              highlightFill: "rgba(151,187,205,0.75)",
+              highlightStroke: "rgba(151,187,205,1)",
+              data: [[DATAVALUESREVIEWS]]
+          }
+      ]
+  };
+  // Get context with jQuery - using jQuery's .get() method.
+  var ctx1 = $("#registeredUsers canvas").get(0).getContext("2d");
+  var ctx2 = $("#registeredReviews canvas").get(0).getContext("2d");
+  // This will get the first returned node in the jQuery collection.
+  var myBarChart = new Chart(ctx1).Bar(data1);
+  var myBarChart = new Chart(ctx2).Bar(data2);
+
+</script>

@@ -1,4 +1,13 @@
 <?php
+/* ----------------------------------------------
+- Author: Rick Anderson
+- Revision Date: 29/4/2015
+-
+-
+- Filename: index.php
+- Description: Handles it all. HTACCESS redirects all traffic through index.php to create
+               the pretty links. Creates and updates sessions, handles some of the error displays.
+---------------------------------------------- */
 //Database Broswer Access
 //https://p3nlmysqladm002.secureserver.net/grid55/197/index.php
 
@@ -21,16 +30,9 @@
   $m = new Messages;
   $less = new lessc;
 
-  $less->compileFile($vars->lessInput, $vars->lessOutput);
 
-  /*
-  - $userInfo
-  - array(3) {
-  -	  ["display_name"]=> string(9) "Just_Fifi"
-  -	  ["logo"]=> string(99) "http://static-cdn.jtvnw.net/jtv_user_pictures/just_fifi-profile_image-0c95469b01468242-300x300.jpeg"
-  -	  ["member_id"]=> string(1) "1"
-  - }
-  */
+  $vars->autoCompileLess($vars->lessInput, $vars->lessOutput);
+  // $less->compileFile(, $vars->lessOutput);
 
   // CHECKS SESSION FOR EXISTENCE
   if (isset($_SESSION['trtv']['display_name']) && !empty($_SESSION['trtv']['display_name'])) {
@@ -63,38 +65,6 @@
       $errorsHTML = $errors;
     }
   }
-
-
-
-
-  // if (isset($_SESSION['trtv']['error']) && !empty($_SESSION['trtv']['error']))
-  // {
-  //   $tl = (isset($_SESSION['trtv']['tlogout']) && !empty($_SESSION['trtv']['tlogout']) ? $_SESSION['trtv']['tlogout'][0] : '');
-  //   $errorsHTML = '<p class="failure">';
-  //   foreach ($_SESSION['trtv']['error'] as $e)
-  //   {
-  //     $errorsHTML .= $e;
-  //   }
-  //   $errorsHTML .= '</p>'.$tl;
-  //   $_SESSION['trtv']['error'] = array();
-  //   if ($tl != $null || !empty($tl)) { $_SESSION['trtv']['tlogout'] = ''; }
-  // }
-
-  // // CHECKS FOR SUCCESS WITHIN THE SESSION
-  // if (isset($_SESSION['trtv']['success']) && !empty($_SESSION['trtv']['success']))
-  // {
-  //   $errorsHTML = '<p class="success">';
-  //   foreach ($_SESSION['trtv']['success'] as $e)
-  //   {
-  //     $errorsHTML .= $e;
-  //   }
-  //   $errorsHTML .= '</p>';
-  //   $_SESSION['trtv']['error'] = array();
-  //   if ($tl != $null || !empty($tl)) { $_SESSION['trtv']['tlogout'] = ''; }
-  // }
-
-
-
 
   //CHECKS IF ADMIN
   if (isset($checkAdmin) && !empty($checkAdmin))
@@ -130,7 +100,4 @@
     $_SESSION['trtv']['error'][] = $m->notFound;
     header('Location: '.$vars->siteAddress.'/home');
   }
-    // echo "<pre>".var_export($_SESSION['trtv'], true)."</pre>";
-    // echo "<pre>".var_export($errorType, true)."</pre>";
-    // echo "<pre>".var_export($eTemplate, true)."</pre>";
 ?>

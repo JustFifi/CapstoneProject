@@ -1,6 +1,6 @@
   <div id="simpleSearchForm">
-    <input type="text" name="searchSimple" id="twitchSearchUser" placeholder="Search Reviews">
-    <input type="button" href="#" id="searchFormSimple" value="Search" class="button red">
+    <input type="text" name="searchSimple" id="twitchSearchUser" placeholder="Search For Streamer">
+    <button type="submit" id="searchFormSimple" value="Search" class="button red">[searchBtn]</button>
   </div>
 
       <script>
@@ -19,5 +19,10 @@
                 }
             }
           });
+        });
+        $("#twitchSearchUser").keyup(function(event){
+            if(event.keyCode == 13){
+                $("#searchFormSimple").click();
+            }
         });
       </script>

@@ -1,4 +1,12 @@
 <?php
+/* ----------------------------------------------
+- Author: Rick Anderson
+- Revision Date: 29/4/2015
+-
+-
+- Filename: reviews.php
+- Description: MVC for handling all the reviews from reading to controlling them admin side.
+---------------------------------------------- */
   //Prevent Direct Access
   if (count(get_included_files()) == 1) die("Error");
 
@@ -22,23 +30,15 @@
       $reviewArrConverted = '';
       foreach ($tmp as $t) {
 
-      $tmp = '
-        <tr id="small-review-[reviewID]">
-          <td><span>[targetIMG]</span><span>[targetName]</span></td>
-          <td><span><a href="[articleURL]">[reviewTitle]</a></span><span>[reviewExcerpt]</span></td>
-          <td class="stars">[ratingNumber]</td>
-          <td><span>[reviewerIMG]</span><span>[reviewerName]</span></td>
-          <td>[reviewDate]</td>
-        </tr>';
+      $tmp = $vars->reviewTblTemplate;
 
-        //http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_300x300.png
         $tIMG = $q->getTargetImage($t['rev_target']);
         $targetImg = ($tIMG ? '<img src="'.$tIMG['usr_logo'].'" class="logo-image" alt="' : '<img src="http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_300x300.png" class="logo-image" alt="');
 
         $articleURL = $vars->siteAddress.'/reviews/view/'.$t['rev_id'];
 
         $title = (strlen($t['rev_title']) > 30 ? substr($t['rev_title'],0,30).'...' : $t['rev_title']);
-        $post = (strlen($t['rev_body']) > 40 ? substr($t['rev_body'],0,40).'...' : $t['rev_body']);
+        $post = (strlen($build->rip_tags($t['rev_body'])) > 30 ? substr($build->rip_tags($t['rev_body']),0,40).'...' : $build->rip_tags($t['rev_body']));
 
         $tt = preg_replace('/\[reviewID\]/', $t['rev_id'], $tmp);
         $tt = preg_replace('/\[articleURL\]/', $articleURL, $tt);
@@ -200,27 +200,6 @@
         $_SESSION['trtv']['error'][] = $m->generalError;
         header('Location: '.$vars->siteAddress.'/reviews/new');
       }
-      break;
-    }
-
-    case "vote": {
-      //AJAX Call for upvoting and downvoting
-      $type = (isset($page[2]) && !empty($page[2]) && ($page[2] == "up" || $page[2] == "down") ? $page[2] : '');
-
-      switch ($type) {
-        case "up": {
-          
-          break;
-        }
-        case "down": {
-
-          break;
-        }
-        default: {
-          break;
-        }
-      } // END AJAX SWITCH FOR UP/DOWN VOTES
-
       break;
     }
 

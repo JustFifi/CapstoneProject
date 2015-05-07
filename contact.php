@@ -1,4 +1,12 @@
 <?php
+/* ----------------------------------------------
+- Author: Rick Anderson
+- Revision Date: 7/4/2015
+-
+-
+- Filename: contact.php
+- Description: Manages the contact form validation and security.
+---------------------------------------------- */
   //Prevent Direct Access
   if (count(get_included_files()) == 1) die("Error");
 

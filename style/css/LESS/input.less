@@ -48,6 +48,19 @@
 
 }
 
+
+
+@font-face {
+    font-family: 'glyphs';
+    src: url('../fonts/glyphs.eot');
+    src: url('../fonts/glyphs.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/glyphs.woff') format('woff'),
+         url('../fonts/glyphs.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
 @headings: "gnuolane";
 @bodyfont: "opensans_R";
 @linkfont: "opensans_B";
@@ -63,6 +76,12 @@
 .border-shadow(@border, @shadow) {
   border: @border;
   box-shadow: @shadow;
+}
+
+
+.centered {
+  text-align: center !important;
+  margin: 0 auto;
 }
 
 .right {
@@ -133,7 +152,7 @@ h4 a, h5 a, h6 a {
       background: url(img/GlitchIcon.png) no-repeat;
       background-size: auto 100%;
       background-position: 100% 50%;
-      padding: 0 24px 0 0;
+      padding: 0 24px;
     }
   }
 
@@ -295,6 +314,7 @@ h4 a, h5 a, h6 a {
   }
   li>a.active-page {
     border-bottom: 4px solid #f00;
+    padding-bottom: 6px !important;
   }
 
   .logo-image {
@@ -305,7 +325,7 @@ h4 a, h5 a, h6 a {
 
   // Success Messages
   p {
-    &.success, &.failure {
+    &.success, &.failure, &#suggestions {
       color: #4A7023;
       font-weight: bold;
       width: 70%;
@@ -836,6 +856,10 @@ h4 a, h5 a, h6 a {
         clear: both;
       }
 
+      span.twitch_username a.glitchIcon {
+          margin-left: -24px !important;
+        }
+
       &:nth-of-type(2n) {
         float: left;
         margin-left: 5px;
@@ -844,6 +868,7 @@ h4 a, h5 a, h6 a {
       &:nth-last-of-type(-n+2) {
         margin-top: 10px;
       }
+
     }
   }
 
@@ -871,13 +896,12 @@ h4 a, h5 a, h6 a {
     #searchFormSimple {
       display: inline-block;
       position: relative;
-      text-indent: -99999em;
-      background: url(img/rightArrow.png),
-                  linear-gradient(linear, left top, left bottom, from(#9c3e3e), to(#d46565));
+      // background: linear-gradient(linear, left top, left bottom, from(#9c3e3e), to(#d46565));
       top: -2px;
       height: 30px;
       width: 30px;
       border-radius: 0 0 10px 0;
+      padding: 4px 0 0;
       outline: 0;
       border: 1px solid #333;
       border-left: 2px solid #111;
@@ -938,6 +962,47 @@ h4 a, h5 a, h6 a {
 
       span {
         display: block;
+      }
+    }
+  }
+
+  #tblReviews {
+    thead {
+      text-align: center;
+      font-weight: bold;
+      margin: 0 0 15px;
+    }
+  }
+
+  #other-reviews-by-author, #similar-to-target {
+    h3 {
+      margin: 20px 0 0;
+      font-size: 18px;
+
+      span {
+        margin-left: -20px;
+      }
+    }
+
+    ul {
+      margin: 10px 0 0 20px;
+    }
+  }
+
+  #registeredUsers, #registeredReviews {
+    text-align: center;
+
+    h2 {
+      text-align: center;
+    }
+
+    canvas {
+      max-width: 600px;
+      width: 100%;
+      height: auto;
+
+      &:first-of-type {
+        margin: 0 0 50px;
       }
     }
   }

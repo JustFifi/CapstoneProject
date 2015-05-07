@@ -41,6 +41,18 @@ class Variables
   public $reviewOthersByAuthor = "reviewOthersByAuthor.tpl.html";
 
   public $searchFormSimple = "searchSimple.tpl.html";
+  public $search = "search.tpl.html";
+
+  public $voteBar = "upvoteBar.tpl.html";
+
+  public $reviewTblTemplate = '
+          <tr id="small-review-[reviewID]">
+            <td><span>[targetIMG]</span><span class="twitch_username">[targetName]</span></td>
+            <td><span><a href="[articleURL]">[reviewTitle]</a></span><span>[reviewExcerpt]</span></td>
+            <td class="stars">[ratingNumber]</td>
+            <td><span>[reviewerIMG]</span><span class="twitch_username">[reviewerName]</span></td>
+            <td>[reviewDate]</td>
+          </tr>';
 
 
   public function send_mail($template, $recipient, $message) {
@@ -57,9 +69,59 @@ class Variables
       mail($to,$message['subject'],$message['body'],$headers);
   }
 
-  function random_lipsum($amount = 1, $what = 'paras', $start = 0) {
+  public function random_lipsum($amount = 1, $what = 'paras', $start = 0) {
     return simplexml_load_file("http://www.lipsum.com/feed/xml?amount=$amount&what=$what&start=$start")->lipsum;
   }
+
+  public function autoCompileLess($inputFile, $outputFile) {
+    // load the cache
+    $cacheFile = $inputFile.".cache";
+
+    if (file_exists($cacheFile)) {
+      $cache = unserialize(file_get_contents($cacheFile));
+    } else {
+      $cache = $inputFile;
+    }
+
+    $less = new lessc;
+    $newCache = $less->cachedCompile($cache);
+
+    if (!is_array($cache) || $newCache["updated"] > $cache["updated"]) {
+      file_put_contents($cacheFile, serialize($newCache));
+      file_put_contents($outputFile, $newCache['compiled']);
+    }
+  }
+
+  function getLast7Days() {
+    $today = strtotime('today');
+    $todayMinus1 = strtotime('-1 day');
+    $todayMinus2 = strtotime('-2 days');
+    $todayMinus3 = strtotime('-3 days');
+    $todayMinus4 = strtotime('-4 days');
+    $todayMinus5 = strtotime('-5 days');
+    $todayMinus6 = strtotime('-6 days');
+
+    $x = array($todayMinus6, $todayMinus5, $todayMinus4, $todayMinus3, $todayMinus2, $todayMinus1, $today);
+
+    return $x;
+  }
+
+  function getLast7DaysData($type, $data) {
+    $q = new DatabaseQueries;
+    $x = array();
+    if ($type == 'users') {
+      foreach ($data as $d) {
+        array_push($x, $q->getLast7DaysUsers($d));
+      }
+    } elseif ($type == 'reviews') {
+      foreach ($data as $d) {
+        array_push($x, $q->getLast7DaysReviews($d));
+      }
+    }
+
+    return $x;
+  }
+
 }
 
 class HTML
@@ -111,9 +173,14 @@ class basicProtocols
   public function mainHTML( $errorsHTML, $checkAdmin, $adminLink, $userLink, $currentPage )
   {
     $vars = new Variables;
+
+    $arrNoSearchPages = array('admin', 'contact');
+
     $html = file_get_contents( $vars->pathToStyles . $vars->siteTemplate );
     $header = file_get_contents( $vars->pathToStyles . $vars->headerTemplate );
     $footer = file_get_contents( $vars->pathToStyles . $vars->footerTemplate );
+    $search = file_get_contents($vars->pathToStyles.$vars->searchFormSimple);
+    $search = preg_replace('/\[searchBtn\]/', '<img src="'.$vars->siteAddress.'/'.$vars->pathToStyles.'css/img/rightArrow.png" alt="Search">', $search);
 
     if (isset($errorsHTML) && !empty($errorsHTML))
     {
@@ -127,6 +194,7 @@ class basicProtocols
     $header = preg_replace( '/\[siteAddress\]/', $vars->siteAddress, $header );
 
     $html = preg_replace( '/\[errors\]/', $pErrors, $html );
+    $html = (!in_array(strtolower($currentPage), $arrNoSearchPages) ? preg_replace( '/\[search\]/', $search, $html ) : preg_replace( '/\[search\]/', '', $html ));
     $html = preg_replace( '/\[currentPage\]/', $currentPage, $html );
     $html = preg_replace( '/\[header\]/', $header, $html );
     $html = preg_replace( '/\[footer\]/', $footer, $html );
@@ -183,6 +251,8 @@ class basicProtocols
       $html = preg_replace('/\[adminLinks\]/', $adminLinks, $html);
       $html = preg_replace( '/\[pageHeader\]/', '<h1 id="page-header">PAGEHEADER</h1>', $html );
 
+      // Admin fix for message displays
+
       if ( (isset($_SESSION['trtv']['adminsuccess']) && !empty($_SESSION['trtv']['adminsuccess'])) || (isset($_SESSION['trtv']['adminerror']) && !empty($_SESSION['trtv']['adminerror'])) ) {
         $container = (isset($_SESSION['trtv']['adminsuccess']) && !empty($_SESSION['trtv']['adminsuccess']) ? '<p class="success">'.$m->errorMessages($_SESSION['trtv']['adminsuccess']).'</p>' : '<p class="failure">'.$m->errorMessages($_SESSION['trtv']['adminerror']).'</p>' );
 
@@ -193,10 +263,38 @@ class basicProtocols
 
       if ( $page == 'dashboard' )
         {
+          // Admin Dashboard Home
+          $dashboard = file_get_contents($vars->pathToStyles.$vars->adminDashboard);
 
+          // Grab the name of the last 7 days for labels
+          $dataLabels = $vars->getLast7Days();
+          $dataArrayUsers = $vars->getLast7DaysData('users', $dataLabels);
+          $dataArrayReviews = $vars->getLast7DaysData('reviews', $dataLabels);
+
+          $dataLabelFix = '';
+          $dataValuesUsers = '';
+          foreach ($dataLabels as $t) {
+            $dataLabelsFix .= '"'.date('M d', $t).'", ';
+          }
+          foreach ($dataArrayUsers as $u) {
+            $dataValuesUsers .= $u['value'].', ';
+          }
+          foreach ($dataArrayReviews as $u) {
+            $dataValuesReviews .= $u['value'].', ';
+          }
+
+          $dataLabelsFix = substr($dataLabelsFix, 0, -2);
+          $dataValuesUsersFix = substr($dataValuesUsers, 0, -2);
+          $dataValuesReviewsFix = substr($dataValuesReviews, 0, -2);
+
+          $html = preg_replace('/\[adminContent\]/', $dashboard, $html);
+          $html = preg_replace('/\[DATALABELS\]/', $dataLabelsFix, $html);
+          $html = preg_replace('/\[DATAVALUESUSERS\]/', $dataValuesUsersFix, $html);
+          $html = preg_replace('/\[DATAVALUESREVIEWS\]/', $dataValuesReviewsFix, $html);
         }
       elseif ( $page == 'newsletter' )
         {
+          // Admin Newsletter page
           $grabThis = file_get_contents($vars->pathToStyles.$vars->adminNewsletter);
           $editor = file_get_contents($vars->pathToStyles.$vars->textEditor);
 
@@ -344,15 +442,4 @@ class basicProtocols
 
     return $string;
   }
-
-  public function reviews( $page )
-  {
-    switch ($page) {
-      case "new-review": {
-        
-        break;
-      } // END ADD REVIEW CASE
-    }
-  }
-
 }

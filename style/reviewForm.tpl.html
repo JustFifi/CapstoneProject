@@ -13,7 +13,7 @@
           <li data-wysihtml5-command="insertImage" title="Insert an image" class="command"></li>
           <li data-wysihtml5-command="formatBlock" data-wysihtml5-command-value="h1" title="Insert headline 1" class="command"></li>
           <li data-wysihtml5-command="formatBlock" data-wysihtml5-command-value="h2" title="Insert headline 2" class="command"></li>
-          <li data-wysihtml5-command-group="foreColor" class="fore-color" title="Color the selected text" class="command">
+          <li data-wysihtml5-command-group="foreColor" class="fore-color command" title="Color the selected text">
             <ul>
               <li data-wysihtml5-command="foreColor" data-wysihtml5-command-value="silver"></li>
               <li data-wysihtml5-command="foreColor" data-wysihtml5-command-value="gray"></li>
@@ -46,18 +46,16 @@
       </div>
     </div>
     <section id="editor">
-        <label for="wysihtml5-editor" class="required">What do you have to say?:</label>
-        <textarea id="wysihtml5-editor" spellcheck="false" wrap="off" autofocus placeholder="Enter something ..." name="review_body" cols="60" rows="33">
-          [reviewPost]
-        </textarea>
+      <label for="wysihtml5-editor" class="required">What do you have to say?:</label>
+      <textarea id="wysihtml5-editor" spellcheck="false" wrap="soft" autofocus placeholder="Enter something ..." name="review_body" cols="60" rows="33">
+        [reviewPost]
+      </textarea>
 
-        <label for="rating-s" class="required">How would you rate this streamer?:</label>
-          <input required="required" type="hidden" id="rating-h" name="rating" value="0">
-          <input required="required" type="hidden" id="user" name="user" value="[reviewerName]">
-        <div id="rating-s" data-rateit-starwidth="32" data-rateit-starheight="32">
-        </div>
-        <button type="submit" name="submit" value="Submit" class="button green" id="formSubmit">Submit Review</button>
-      </form>
+      <label class="required">How would you rate this streamer?:</label>
+        <input type="hidden" id="rating-h" name="rating" value="0">
+        <input type="hidden" id="user" name="user" value="[reviewerName]">
+      <div id="rating-s" data-rateit-starwidth="32" data-rateit-starheight="32"></div>
+      <button type="submit" name="submit" value="Submit" class="button green" id="formSubmit">Submit Review</button>
     </section>
     <script>
   	  $(function () { $('#rating-s').rateit({ max: 5, step: .5, backingfld: '#rating-h' }); });
@@ -68,3 +66,4 @@
 		});
       changeFocus('#review_title');
     </script>
+</form>

@@ -1,4 +1,13 @@
 <?php
+/* ----------------------------------------------
+- Author: Rick Anderson
+- Revision Date: 29/4/2015
+-
+-
+- Filename: blog.php
+- Description: Handles all blog views, security, and pagination for blogs.
+---------------------------------------------- */
+
   //Prevent Direct Access
   if (count(get_included_files()) == 1) die("Error");
 
@@ -75,6 +84,9 @@
 
       if ($blog) {
         $replace = $build->blogHome($blog, 'page');
+      } else {
+        $_SESSION['trtv']['error'][] = $m->notFound;
+        header('Location: '.$vars->siteAddress.'/blog');
       }
 
       // echo "<pre>".var_export($blog, true)."</pre>";

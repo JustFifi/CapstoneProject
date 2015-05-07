@@ -1,4 +1,12 @@
 <?php
+/* ----------------------------------------------
+- Author: Rick Anderson
+- Revision Date: 7/4/2015
+-
+-
+- Filename: auth.php
+- Description: Manages all the authentication from the Twitch response code with the help of the twitch php function library written by Elias Ranz-Schleifer.
+---------------------------------------------- */
   //Prevent Direct Access
   if (count(get_included_files()) == 1) die("Error");
 

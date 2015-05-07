@@ -1,4 +1,12 @@
 <?php
+/* ----------------------------------------------
+- Author: Rick Anderson
+- Revision Date: 7/4/2015
+-
+-
+- Filename: home.php
+- Description: Nothing too special, just a simple php to grab the homepage data from the database and display it.
+---------------------------------------------- */
   //Prevent Direct Access
   if (count(get_included_files()) == 1) die("Error");
 

@@ -1,4 +1,12 @@
 <?php
+/* ----------------------------------------------
+- Author: Rick Anderson
+- Revision Date: 7/4/2015
+-
+-
+- Filename: admin.php
+- Description: Controller for the admin section of TR. Handles everything from security to the building of views.
+---------------------------------------------- */
   //Prevent Direct Access
   if (count(get_included_files()) == 1) die("Error");
 
@@ -13,7 +21,6 @@
         $grabThis = $build->admin('dashboard');
         $html = preg_replace('/\[content\]/', $grabThis, $html);
         //Dashboard Elements for JQ
-
       }
       elseif ($page[1] == 'newsletter') {
         $html = preg_replace('/\[content\]/', $build->admin('newsletter'), $html);
