@@ -85,7 +85,7 @@
   $page     = preg_split("/\//", $request);
 
   #keeps users from requesting any file they want
-  $safe_pages = array("auth", "logout", "home", "admin", "blog", "reviews", "contact", "page", "search", "test");
+  $safe_pages = array("auth", "logout", "home", "admin", "blog", "reviews", "contact", "page", "search");
 
   if(in_array($page[0], $safe_pages))
   {

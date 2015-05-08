@@ -236,7 +236,7 @@ class basicProtocols
 
     $cReading = ($type == 'mini' ? '<p><a href="'.$vars->siteAddress.'/blog/'.$ba['ID'].'" title="View '.ucwords($ba['Title']).'" class="button controls blue">Continue Reading</a></p>' : '');
     $title = ($type == 'mini' ? '<a href="'.$vars->siteAddress.'/blog/'.$ba['ID'].'" title="View '.ucwords($ba['Title']).'">'.ucwords($ba['Title']).'</a>' : ucwords($ba['Title']));
-    $post = ($type == 'mini' ? substr($ba['Post'], 0, 500).' ...' : $ba['Post']);
+    $post = ($type == 'mini' ? substr($this->rip_tags($ba['Post']), 0, 500).' ...' : $ba['Post']);
 
     $tmp = preg_replace('/\[blogTitle\]/', $title, $tmp);
     $tmp = preg_replace('/\[blogAuthor\]/', '<span class="twitch_username">'.$ba['Author']."</span>", $tmp);

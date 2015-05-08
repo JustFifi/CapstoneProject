@@ -1,0 +1,523 @@
+@import url(http://fonts.googleapis.com/css?family=Stalinist+One);
+@import url(http://fonts.googleapis.com/css?family=PT+Mono);
+
+* {
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	}
+
+html,
+body {
+   margin:0;
+   padding:0;
+   height:100%;
+   }
+   
+body {
+	background: #76b1cf url('../indexer_files/bg.png') repeat-y 50% 0;
+	font: 15px helvetica, sans-serif;
+	color: #000;
+	}
+	
+#wrapper {
+	width: 100%;
+	max-width: 960px;
+	min-height: 100%;
+	display: block;
+	padding: 105px 30px 60px;
+	margin: 0 auto;
+	position: relative;
+	}
+	
+table {
+	display: block;
+	width: 100%;
+	border-collapse: collapse;
+	border: 1px solid #000;
+	border-radius: 0 0 10px 10px;
+	box-shadow: 0 0 15px #000;
+	}
+
+td, th {
+	width: 300px;
+	height: 40px;
+	padding: 2px;
+	vertical-align: middle;
+	}
+
+.date, .time {
+	text-align: center;
+	}
+
+ul#dirLinks {
+	margin: 0 auto;
+	width: 896px;
+	}
+	
+ul#dirLinks li {
+	display: inline-block;
+	margin: 15px 20px;
+	}
+	
+tr:nth-child(odd) {
+	background: rgba(0,0,0,.05);
+	}
+	
+#fileHeader {
+	background: #000;
+	color: #fff;
+	}
+	
+#footer {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	text-align: center;
+	font: 9pt 'courier new', monospaced;
+	color: #76b1cf;
+	background: #000;
+	box-shadow: 0 0 15px #000;
+	}
+	
+#footer span {
+	display: block;
+	margin: 5px 0;
+	}
+	
+h1 {
+	font: 51px 'Stalinist One', cursive;
+	box-shadow: 0 0 15px #000;
+	width: 100%;
+	position: absolute;
+	left: 0;
+	top: 0;
+	color: #fff;
+	background: #000;
+	text-align: center;
+	padding: 15px;
+	}
+	
+#loadtime {
+	font: 12px helvetica, sans-serif;
+	padding: 10px 0 0;
+	color: #333;
+	/* width: 100%; */
+	text-align: right;
+	}
+	
+tr:hover {
+	background: rgba(50,50,50,.2);
+	}
+	
+tr td:first-child {
+	padding: 0 0 0 40px;
+	}
+	
+#dirLinks li {
+	display: inline-block;
+	height: 128px;
+	width: 128px;
+	background-image: url('../indexer_files/folder.png');
+	}
+	
+#dirLinks li a {
+	display: table-cell;
+	height: 128px;
+	width: 120px;
+	text-align: center;
+	vertical-align: bottom;
+	padding: 5px;
+	padding-bottom: 35px;
+	text-decoration: none;
+	color: #111;
+	font:bold 13px 'PT Mono', monospaced;
+	word-break: break-all;
+	}
+	
+#dirLinks li#prevDir {
+	background: url('../indexer_files/folderup.png');
+	}
+	
+#fileLinks a {
+	color: #3A5766;
+	text-decoration: none;
+	font: 13px 'PT Mono', monospaced;
+	}
+
+#fileLinks a:hover {
+	color: #AB0000;
+	}
+	
+#fileLinks a:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/_blank.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.php']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/php.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.png']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/png.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.sql']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/sql.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.txt']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/txt.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.zip']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/zip.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.rar']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/rar.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+	
+#fileLinks a[href$='.tgz']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/tgz.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.css']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/css.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.html']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/html.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.jpg']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/jpg.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.htaccess']:before, #fileLinks a[href$='.htpasswd']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/h.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.htm']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/_page.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}	
+		
+#fileLinks a[href$='.ai']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/ai.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.avi']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/avi.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.bmp']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/bmp.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.doc']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/doc.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.dotx']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/dotx.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.eps']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/eps.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.exe']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/exe.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.flv']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/flv.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.gif']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/gif.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.java']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/java.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.js']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/js.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.mid']:before, #fileLinks a[href$='.midi']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/mid.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.mp3']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/mp3.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.mp4']:before, #fileLinks a[href$='.mkv']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/mp4.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.mpg']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/mpg.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.pdf']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/pdf.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.ppt']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/ppt.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.psd']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/psd.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.py']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/py.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.qt']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/qt.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.rb']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/rb.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.rtf']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/rtf.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.tga']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/tga.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.tiff']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/tiff.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.wav']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/wav.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.xls']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/xls.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.xlsx']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/xlsx.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}
+	
+#fileLinks a[href$='.xml']:before {
+	position: relative;
+	top: 3px;
+	content: url('../indexer_files/icons/xml.png');
+	height: 20px;
+	width: 20px;
+	padding: 0 5px 0 0;
+	}

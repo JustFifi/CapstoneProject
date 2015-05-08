@@ -1,125 +1,5 @@
-(function($){
-
-  // Defining our jQuery plugin
-
-  $.fn.modal_box = function(prop){
-
-    // Default parameters
-
-    var options = $.extend({
-      height : "250",
-      width : "500",
-      title:"JQuery Modal Box Demo",
-      description: "Example of how to create a modal box.",
-      top: "20%",
-      left: "30%",
-    },prop);
-
-    return this.click(function(e){
-      add_block_page();
-      add_popup_box();
-      add_styles();
-
-      $('.paulund_modal_box').fadeIn();
-    });
-
-     function add_styles(){
-      $('.paulund_modal_box').css({
-        'position':'absolute',
-        'left':options.left,
-        'top':options.top,
-        'display':'none',
-        'height': options.height + 'px',
-        'width': options.width + 'px',
-        'border':'1px solid #fff',
-        'box-shadow': '0px 2px 7px #292929',
-        '-moz-box-shadow': '0px 2px 7px #292929',
-        '-webkit-box-shadow': '0px 2px 7px #292929',
-        'border-radius':'10px',
-        '-moz-border-radius':'10px',
-        '-webkit-border-radius':'10px',
-        'background': '#f2f2f2',
-        'z-index':'50',
-      });
-      $('.paulund_modal_close').css({
-        'position':'relative',
-        'top':'-25px',
-        'left':'20px',
-        'float':'right',
-        'display':'block',
-        'height':'50px',
-        'width':'50px',
-        'background': 'url(images/close.png) no-repeat',
-      });
-                        /*Block page overlay*/
-      var pageHeight = $(document).height();
-      var pageWidth = $(window).width();
-
-      $('.paulund_block_page').css({
-        'position':'absolute',
-        'top':'0',
-        'left':'0',
-        'background-color':'rgba(0,0,0,0.6)',
-        'height':pageHeight,
-        'width':pageWidth,
-        'z-index':'10'
-      });
-      $('.paulund_inner_modal_box').css({
-        'background-color':'#fff',
-        'height':(options.height - 50) + 'px',
-        'width':(options.width - 50) + 'px',
-        'padding':'10px',
-        'margin':'15px',
-        'border-radius':'10px',
-        '-moz-border-radius':'10px',
-        '-webkit-border-radius':'10px'
-      });
-    }
-
-     function add_block_page(){
-      var block_page = $('<div class="paulund_block_page"></div>');
-
-      $(block_page).appendTo('body');
-    }
-
-     function add_popup_box(){
-       var pop_up = $('<div class="paulund_modal_box"><a href="#" class="paulund_modal_close"></a><div class="paulund_inner_modal_box"><h2>' + options.title + '</h2><p>' + options.description + '</p></div></div>');
-       $(pop_up).appendTo('.paulund_block_page');
-
-       $('.paulund_modal_close').click(function(){
-        $(this).parent().fadeOut().remove();
-        $('.paulund_block_page').fadeOut().remove();
-       });
-    }
-
-    return this;
-  };
-})(jQuery);
-
-function empty(data) {
-  if(typeof(data) == 'number' || typeof(data) == 'boolean')
-  {
-    return false;
-  }
-  if(typeof(data) == 'undefined' || data === null)
-  {
-    return true;
-  }
-  if(typeof(data.length) != 'undefined')
-  {
-    return data.length == 0;
-  }
-  var count = 0;
-  for(var i in data)
-  {
-    if(data.hasOwnProperty(i))
-    {
-      count ++;
-    }
-  }
-  return count == 0;
-}
-
+// used in conjunction with admin() to build the ajax links for
+// disabling/enabling accounts and moderator status.
 function siteVars(vari) {
   this.url = "http://twitchreviews.tv/";
   this.admin = "admin/";
@@ -128,10 +8,13 @@ function siteVars(vari) {
   this.build = buildVar;
 }
 
+// Used with siteVars() to put the link together
 function buildVar() {
   return this.url + this.admin + this.users + this.variable;
 }
 
+// Simple confirmation popup to double check
+// the admin/moderator wants to delete the blog/review
 function confirmDelete() {
   $('a[href*="/delete/"]').click(function(e){
       e.preventDefault();
@@ -143,11 +26,14 @@ function confirmDelete() {
   });
 }
 
+// Extension of the admin() function to change the text
+// of specified elements
 function changeText(target, text, clas) {
   $(target).text(text);
   $(target).addClass(clas)
 }
 
+// Changes the admin control buttons to match their current state
 function admin() {
   window.setTimeout(function(){
     $('p.success').remove();
@@ -193,6 +79,8 @@ function admin() {
   });
 }
 
+// Checks the review form to make sure the twitch target
+// is a valid user
 function autoSearchStreamer(target) {
   $(target).blur(function(){
     $('.form-error, .form-success').remove();
@@ -213,25 +101,15 @@ function autoSearchStreamer(target) {
   });
 }
 
-function searchStreamer(target) {
-  $('.form-error, .form-success').remove();
-  var data = $(target).val();
-  var count = 1;
-  $.getJSON("http://twitchreviews.tv/search/twitch-user/" + data, function(data2) {
-    if (count == 1) {
-      if (!data2) { return true; }
-      else { return false; }
-      count++;
-    }
-  });
-}
-
+// Forces the focus on a different element where
+// the wysihtml5 editor is used
 function changeFocus(target) {
   setTimeout(function() {
     $(target).focus();
   }, 500);
 }
 
+// Performs a final check on the review submission so valid information has to be entered.
 function checkReviewForm(form, rating, target, user, button) {
   //less than .5 on rating-h
   $(form).submit(function(e){
@@ -262,6 +140,8 @@ function checkReviewForm(form, rating, target, user, button) {
   });
 }
 
+
+// Prebuilt function from rateit to show stars instead of number value
 $.fn.stars = function() {
     return $(this).each(function() {
         // Get the value
@@ -277,12 +157,15 @@ $.fn.stars = function() {
     });
 }
 
+// Creates a email link where it's needed to prevent spam bots from grabbing it from the html
 function jsEmailUpdate(element, name, domain, subject) {
   var email = name + '@' + domain;
   var link = '<a href="mailto:' + email + '?subject=' + subject + '">' + email + '</a>';
   $(element).html(link);
 }
 
+// Converts text to a link
+// Used on usernames to link to a persons Twitch Stream page
 function makeTextALink(element, link) {
   $(element).each(function(){
     var html = ' <a href="' + link + $(this).html() + '" title="Click to view their Twitch channel" target="_blank" class="glitchIcon"> ' + $(this).html() + '</a>';
@@ -290,6 +173,8 @@ function makeTextALink(element, link) {
   });
 }
 
+// Used on any input field that a twitch name is entered
+// Changes spaces, hyphens, plus signs and equals signs to underscores
 function fixTwitchUsername(field) {
   $(field).keyup(function() {
     var text = $(this).val();
@@ -300,11 +185,4 @@ function fixTwitchUsername(field) {
             .replace("=", "_")
     );
   });
-}
-
-function submitSearch(field, path) {
-  var user = $(field).val();
-  if (autoSearchStreamer(user)) {
-    window.location.href = "http://twitchreviews.tv/" + path + user;
-  }
 }
